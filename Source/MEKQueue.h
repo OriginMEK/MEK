@@ -10,7 +10,7 @@ extern "C"
 #include "libavutil/avutil.h"
 }
 #include <windows.h>
-#define sleep(x) Sleep(x)
+#define sleep(x) Sleep(x) //test
 
 ////template<typename T>
 
