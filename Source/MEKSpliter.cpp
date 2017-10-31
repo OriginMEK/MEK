@@ -105,10 +105,11 @@ void MEKSpliter::SpliterThread()
 
 	while (true)
 	{
-		AVPacket* packet = (AVPacket*)malloc(sizeof(AVPacket));
-		av_init_packet(packet);
+		PARSERDISPINFO*  param = new PARSERDISPINFO;
+		//AVPacket* packet = (AVPacket*)malloc(sizeof(AVPacket));
+		//av_init_packet(packet);
 
-		int ret = av_read_frame(mData->pFormatContex, packet);
+		int ret = av_read_frame(mData->pFormatContex, &(param->data));
 		if (ret < 0 )
 		{
 			char errbuf[1024] = { 0 };
@@ -116,17 +117,19 @@ void MEKSpliter::SpliterThread()
 			break;
 		}
 
-		if (packet->stream_index = mData->videoParam->nVideoIndex)
+		if (param->data.stream_index = mData->videoParam->nVideoIndex)
 		{
-			//mData->videoParam->videoQueue.enqueue(packet);
+			mData->videoParam->videoQueue.enqueue(param);
 		}
-		else if (packet->stream_index = mData->audioParam->nAudioIndex)
+		else if (param->data.stream_index = mData->audioParam->nAudioIndex)
 		{
-			//mData->audioParam->audioQueue.enqueue(packet);
+			mData->audioParam->audioQueue.enqueue(param);
 		}
 		else
 		{
-			av_packet_free(&packet);
+			delete param;
+			param = NULL;
+			//av_packet_free(&packet);
 		}
 	}
 }

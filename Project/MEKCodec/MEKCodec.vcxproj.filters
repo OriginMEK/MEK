@@ -36,6 +36,12 @@
     <ClCompile Include="..\..\Source\MEKSpliter.cpp">
       <Filter>CodecCore</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\MEKDecoder.cpp">
+      <Filter>CodecCore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\MEKRender.cpp">
+      <Filter>CodecCore</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\MEKCodec.h">
@@ -63,6 +69,12 @@
       <Filter>CodecCore</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MEKSpliter.h">
+      <Filter>CodecCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\MEKDecoder.h">
+      <Filter>CodecCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\MEKRender.h">
       <Filter>CodecCore</Filter>
     </ClInclude>
   </ItemGroup>

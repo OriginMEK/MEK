@@ -10,18 +10,18 @@ extern "C"
 #include "libavutil/avutil.h"
 }
 #include <windows.h>
-#define sleep(x) Sleep(x) //test
+#define sleep(x) Sleep(x)
 
 ////template<typename T>
 
-typedef struct _CUVIDPARSERDISPINFO
+typedef struct _PARSERDISPINFO
 {
 	int picture_index;         /**<                 */
 	int progressive_frame;     /**<                 */
 	int top_field_first;       /**<                 */
 	int repeat_first_field;    /**< Number of additional fields (1=ivtc, 2=frame doubling, 4=frame tripling, -1=unpaired field)  */
-	AVPacket timestamp;        /**<     */
-} CUVIDPARSERDISPINFO;
+	AVPacket data;        /**<     */
+} PARSERDISPINFO;
 
 class FrameQueue
 {
@@ -34,7 +34,7 @@ private:
 	CRITICAL_SECTION			oCriticalSection_;
 	volatile int				nReadPosition_;
 	volatile int				nFramesInQueue_;
-	CUVIDPARSERDISPINFO			aDisplayQueue_[cnMaximumSize];
+	PARSERDISPINFO				aDisplayQueue_[cnMaximumSize];
 	volatile int				aIsFrameInUse_[cnMaximumSize];
 	volatile int				bEndOfDecode_;
 public:
@@ -52,11 +52,11 @@ public:
 
 	void reset_event(HANDLE event);
 
-	void enqueue(const CUVIDPARSERDISPINFO *pPicParams);
+	void enqueue(const PARSERDISPINFO *pPicParams);
 
-	bool dequeue(CUVIDPARSERDISPINFO *pDisplayInfo);
+	bool dequeue(PARSERDISPINFO *pDisplayInfo);
 	
-	void releaseFrame(const CUVIDPARSERDISPINFO *pPicParams);
+	void releaseFrame(const PARSERDISPINFO *pPicParams);
 
 	bool isInUse(int nPictureIndex) const;
 

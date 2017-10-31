@@ -9,7 +9,7 @@ public:
 	{
 		if (m_pInstance == NULL)
 		{
-
+			m_pInstance = new T();
 		}
 		return m_pInstance;
 	}

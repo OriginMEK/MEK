@@ -8,7 +8,7 @@ FrameQueue::FrameQueue() : hEvent_(0)
 {
 	hEvent_ = CreateEvent(NULL, false, false, NULL);
 	InitializeCriticalSection(&oCriticalSection_);
-	memset(aDisplayQueue_, 0, cnMaximumSize * sizeof(AVPacket));
+	memset(aDisplayQueue_, 0, cnMaximumSize * sizeof(PARSERDISPINFO));
 	memset((void *)aIsFrameInUse_, 0, cnMaximumSize * sizeof(int));
 }
 
@@ -50,12 +50,12 @@ bool FrameQueue::isInUse(int nPictureIndex) const
 }
 
 //template<typename T>
-void FrameQueue::releaseFrame(const CUVIDPARSERDISPINFO *pPicParams)
+void FrameQueue::releaseFrame(const PARSERDISPINFO *pPicParams)
 {
 }
 
 //template<typename T>
-bool FrameQueue::dequeue(CUVIDPARSERDISPINFO *pDisplayInfo)
+bool FrameQueue::dequeue(PARSERDISPINFO *pDisplayInfo)
 {
 	pDisplayInfo->picture_index = -1;
 	bool bHaveNewFrame = false;
@@ -77,7 +77,7 @@ bool FrameQueue::dequeue(CUVIDPARSERDISPINFO *pDisplayInfo)
 }
 
 //template<typename T>
-void FrameQueue::enqueue(const CUVIDPARSERDISPINFO *pPicParams)
+void FrameQueue::enqueue(const PARSERDISPINFO *pPicParams)
 {
 	// Mark the frame as 'in-use' so we don't re-use it for decoding until it is no longer needed
 	// for display
