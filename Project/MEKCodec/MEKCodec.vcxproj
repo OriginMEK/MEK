@@ -75,8 +75,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>../../Bin/$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>../../3rdParty/include;$(IncludePath)</IncludePath>
-    <LibraryPath>../../3rdParty/lib/x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>../../3rdParty/include;$(DXSDK_DIR)include;$(IncludePath)</IncludePath>
+    <LibraryPath>../../3rdParty/lib/x64;$(DXSDK_DIR)Lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -112,7 +112,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>../../Lib/$(TargetName).lib</ImportLibrary>
       <ProgramDatabaseFile>../../Pdb/$(TargetName).pdb</ProgramDatabaseFile>
-      <AdditionalDependencies>avcodec.lib;avformat.lib;avutil.lib;avdevice.lib;avfilter.lib;postproc.lib;swresample.lib;swscale.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avcodec.lib;avformat.lib;avutil.lib;avdevice.lib;avfilter.lib;postproc.lib;swresample.lib;swscale.lib;SDL2.lib;d3dx10.lib;dxgi.lib;d3d11.lib;d3dx11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -159,6 +159,10 @@
     <ClCompile Include="..\..\Source\MEKQueue.cpp" />
     <ClCompile Include="..\..\Source\MEKRender.cpp" />
     <ClCompile Include="..\..\Source\MEKSpliter.cpp" />
+    <ClCompile Include="..\..\Source\RE_PixelShader.cpp" />
+    <ClCompile Include="..\..\Source\RE_RenderDevice11.cpp" />
+    <ClCompile Include="..\..\Source\RE_Texture2D.cpp" />
+    <ClCompile Include="..\..\Source\RE_VertexShader.cpp" />
     <ClCompile Include="..\..\Source\stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +173,22 @@
     <ClInclude Include="..\..\Source\MEKQueue.h" />
     <ClInclude Include="..\..\Source\MEKRender.h" />
     <ClInclude Include="..\..\Source\MEKSpliter.h" />
+    <ClInclude Include="..\..\Source\RE_Buffer.h" />
+    <ClInclude Include="..\..\Source\RE_ConstantBuffer.h" />
+    <ClInclude Include="..\..\Source\RE_Declare.h" />
+    <ClInclude Include="..\..\Source\RE_IndexBuffer.h" />
+    <ClInclude Include="..\..\Source\RE_Log.h" />
+    <ClInclude Include="..\..\Source\RE_PixelShader.h" />
+    <ClInclude Include="..\..\Source\RE_RenderDevice.h" />
+    <ClInclude Include="..\..\Source\RE_RenderDevice11.h" />
+    <ClInclude Include="..\..\Source\RE_Shader.h" />
+    <ClInclude Include="..\..\Source\RE_String.h" />
+    <ClInclude Include="..\..\Source\RE_Texture.h" />
+    <ClInclude Include="..\..\Source\RE_Texture2D.h" />
+    <ClInclude Include="..\..\Source\RE_Vector2.h" />
+    <ClInclude Include="..\..\Source\RE_Vector3.h" />
+    <ClInclude Include="..\..\Source\RE_VertexBuffer.h" />
+    <ClInclude Include="..\..\Source\RE_VertexShader.h" />
     <ClInclude Include="..\..\Source\Singleton.h" />
     <ClInclude Include="..\..\Source\stdafx.h" />
     <ClInclude Include="..\..\Source\targetver.h" />

@@ -30,12 +30,25 @@ bool MEKPlayer::Init(char* pathName)
 	}	
 	mDecoder->BeginDecode(mData);
 
+	if (!mRender)
+	{
+		mRender = new MEKRender();
+	}
 	return false;
 }
 
 bool MEKPlayer::SetCallBackFn(pCallBackFn fn)
 {
 	mCallBackFn = fn;
+	return false;
+}
+
+bool MEKPlayer::SetWnd(HWND hWnd)
+{
+	if (mRender)
+	{
+		mRender->SetRenderWnd(hWnd);
+	}
 	return false;
 }
 

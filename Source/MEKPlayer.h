@@ -14,6 +14,7 @@ public:
 
 	bool Init(char* pathName);
 	bool SetCallBackFn(pCallBackFn fn);
+	bool SetWnd(HWND hWnd);
 	bool Start();
 	bool Stop();
 
