@@ -31,18 +31,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // TODO: 在此放置代码。
 	CMEKCodec codec;
 	codec.Init("test");
-	///////////////////////////////////////////////////////////////////
-	//typedef int(_stdcall * AddProc)(int, int);//定义函数指针类型
-	//HINSTANCE hInst;
-	//hInst = LoadLibrary(_T("../../Bin/x64/Debug/MEKCodec.dll"));//动态加载Dll
-	//AddProc Add = (AddProc)GetProcAddress(hInst, "add");//获取Dll的导出函数
-	//if (!Add)
-	//{
-	//	return 0;
-	//}
-	////stradd.Format("5+3=%d", Add(5, 3));
-	//::FreeLibrary(hInst);//释放Dll函数
-	///////////////////////////////////////////////////////////////////
+	//----------------
     // 初始化全局字符串
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_MEKPLAYER, szWindowClass, MAX_LOADSTRING);
