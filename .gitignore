@@ -1,4 +1,4 @@
-/Project/MEKCodec/MEKCodec.VC.VC.opendb
+Project/MEKCodec/MEKCodec.VC.VC.opendb
 
 Project/MEKCodec/x64/Debug/
 Bin/x64/Debug
@@ -6,6 +6,10 @@ Project/MEKCodec/ipch/
 Project/MEKPlayer/x64/
 Lib/
 Pdb/
+Project/MEKCodec/x64/Debug/
+Project/MEKCodec/MEKCodec.vcxproj.filters
+Project/MEKCodec/x64/Debug/MEKCodec.Build.CppClean.log
+Project/MEKCodec/x64/Debug/MEKCodec.log
 # https://github.com/github/gitignore
 # Prerequisites
 *.d

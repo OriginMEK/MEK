@@ -154,16 +154,20 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\dllmain.cpp" />
     <ClCompile Include="..\..\Source\MEKCodec.cpp" />
+    <ClCompile Include="..\..\Source\MEKDecoder.cpp" />
     <ClCompile Include="..\..\Source\MEKPlayer.cpp" />
     <ClCompile Include="..\..\Source\MEKQueue.cpp" />
+    <ClCompile Include="..\..\Source\MEKRender.cpp" />
     <ClCompile Include="..\..\Source\MEKSpliter.cpp" />
     <ClCompile Include="..\..\Source\stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\MEKCodec.h" />
+    <ClInclude Include="..\..\Source\MEKDecoder.h" />
     <ClInclude Include="..\..\Source\MEKIncludeDef.h" />
     <ClInclude Include="..\..\Source\MEKPlayer.h" />
     <ClInclude Include="..\..\Source\MEKQueue.h" />
+    <ClInclude Include="..\..\Source\MEKRender.h" />
     <ClInclude Include="..\..\Source\MEKSpliter.h" />
     <ClInclude Include="..\..\Source\Singleton.h" />
     <ClInclude Include="..\..\Source\stdafx.h" />

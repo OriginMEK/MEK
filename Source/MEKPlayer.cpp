@@ -23,6 +23,13 @@ bool MEKPlayer::Init(char* pathName)
 		mSpliter = new MEKSpliter();
 	}
 	mSpliter->AnalyzeFile(pathName, mData);
+
+	if (!mDecoder)
+	{
+		mDecoder = new MEKDecoder();
+	}	
+	mDecoder->BeginDecode(mData);
+
 	return false;
 }
 

@@ -9,7 +9,6 @@
 #define MEKCODEC_API __declspec(dllimport)
 #endif
 
-//#include "MEKIncludeDef.h"
 #include "Singleton.h"
 #include "MEKPlayer.h"
 // This class is exported from the MEKCodec.dll
@@ -19,10 +18,7 @@ public:
 	// TODO: add your methods here.
 	bool Init(char* pathName);
 	bool SetCallBackFn(pCallBackFn fn);
+	bool SetWnd(HWND hWnd);
 	bool Start();
 	bool Stop();
 };
-
-extern MEKCODEC_API int nMEKCodec;
-
-MEKCODEC_API int fnMEKCodec(void);

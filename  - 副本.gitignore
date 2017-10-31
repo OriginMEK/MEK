@@ -1,0 +1,16 @@
+##class file##
+/Project/MEKCodec/MEKCodec.VC.VC.opendb
+/Project/MEKCodec/debug
+*.obj
+!*.cpp
+!*.h
+*.[oa]
+/Project/MEKCodec/MEKCodec.VC.VC.opendb
+
+Project/MEKCodec/x64/Debug/
+Bin/x64/Debug
+Project/MEKCodec/ipch/
+Project/MEKPlayer/x64/
+Lib/
+Pdb/
+

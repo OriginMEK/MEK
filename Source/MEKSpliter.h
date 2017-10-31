@@ -1,8 +1,10 @@
 #pragma once
+/*
+·Ö°üÆ÷
+*/
 #ifndef MEKSPLITER_H_
 #define MEKSPLITER_H_
 #include "MEKIncludeDef.h"
-#include <process.h>
 class MEKSpliter
 {
 public:
@@ -10,15 +12,15 @@ public:
 	~MEKSpliter();
 
 	bool AnalyzeFile(char* fileName,MEKParam* data);
-	int OpenCodecContext(int *streamIndex, AVCodecContext **dec_ctx, AVFormatContext *fmt_ctx, enum AVMediaType type);
 	static void Start(void *param)
 	{
 		MEKSpliter* spliter = (MEKSpliter*)param;
 		spliter->SpliterThread();
 	}
 
-	void SpliterThread();
 private:
 	MEKParam* mData;
+	int OpenCodecContext(int *streamIndex, AVCodecContext **dec_ctx, AVFormatContext *fmt_ctx, enum AVMediaType type);
+	void SpliterThread();
 };
 #endif //MEKSPLITER_H_

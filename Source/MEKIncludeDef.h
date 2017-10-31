@@ -10,6 +10,7 @@ extern "C"
 #include "libavutil/avutil.h"
 }
 #include "MEKQueue.h"
+#include <process.h>
 #define SAFEDELETE(x) if(x){ delete (x); x = NULL;}
 
 
