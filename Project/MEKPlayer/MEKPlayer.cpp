@@ -30,7 +30,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // TODO: 在此放置代码。
 	CMEKCodec codec;
-	codec.Init("");
+	codec.Init("test");
 	///////////////////////////////////////////////////////////////////
 	//typedef int(_stdcall * AddProc)(int, int);//定义函数指针类型
 	//HINSTANCE hInst;
