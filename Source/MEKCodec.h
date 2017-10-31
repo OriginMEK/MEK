@@ -9,7 +9,7 @@
 #define MEKCODEC_API __declspec(dllimport)
 #endif
 
-#include "MEKIncludeDef.h"
+//#include "MEKIncludeDef.h"
 #include "Singleton.h"
 #include "MEKPlayer.h"
 // This class is exported from the MEKCodec.dll
