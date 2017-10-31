@@ -3,6 +3,8 @@
 #define MEKPLAYER_H_
 
 #include "MEKSpliter.h"
+#include "MEKDecoder.h"
+#include "MEKRender.h"
 #include "MEKQueue.h"
 class MEKPlayer
 {
@@ -16,10 +18,10 @@ public:
 	bool Stop();
 
 private:
-	pCallBackFn mCallBackFn;/*
-	FrameQueue<AVPacket> *mSpliterVideoQueue;
-	FrameQueue<AVPacket> *mSpliterAudioQueue;*/
+	pCallBackFn mCallBackFn;
 	MEKSpliter	*mSpliter;
+	MEKDecoder	*mDecoder;
+	MEKRender	*mRender;
 	MEKParam	*mData;
 };
 #endif //MEKPLAYER_H_
