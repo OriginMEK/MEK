@@ -1,15 +1,14 @@
-Project/MEKCodec/MEKCodec.VC.VC.opendb
-
-Project/MEKCodec/x64/Debug/
+Project/MEKCodec/.vs/MEKCodec
 Bin/x64/Debug
 Project/MEKCodec/ipch/
 Project/MEKPlayer/x64/
+Project/MEKCodec/x64/Debug/
 Lib/
 Pdb/
-Project/MEKCodec/x64/Debug/
+Project/MEKCodec/MEKCodec.VC.VC.opendb
 Project/MEKCodec/MEKCodec.vcxproj.filters
-Project/MEKCodec/x64/Debug/MEKCodec.Build.CppClean.log
-Project/MEKCodec/x64/Debug/MEKCodec.log
+Project/MEKCodec/MEKCodec.VC.db
+#########################################
 # https://github.com/github/gitignore
 # Prerequisites
 *.d
