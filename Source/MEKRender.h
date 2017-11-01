@@ -9,7 +9,7 @@
 class MEKRender
 {
 public:
-	MEKRender();
+	MEKRender(MEKParam* mData);
 	~MEKRender();
 	
 	void SetRenderWnd(HWND hWnd);
@@ -20,6 +20,7 @@ public:
 	}
 private:
 	HWND hWnd;
+	MEKParam* mData;
 	bool RenderThread();
 };
 #endif //MEKRENDER_H_

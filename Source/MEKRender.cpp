@@ -19,9 +19,12 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-MEKRender::MEKRender()
-{
+Texture2D		*gDynamicTexuture = NULL;
+RenderDevice	*gDevice = NULL;
 
+MEKRender::MEKRender(MEKParam* mData)
+{
+	this->mData = mData;
 }
 
 MEKRender::~MEKRender()
@@ -135,7 +138,7 @@ bool MEKRender::RenderThread()
 	}
 
 	// Compute window rectangle dimensions based on requested client area dimensions.
-	RECT r = { 0, 0, 800, 600 };
+	RECT r = { 0, 0, mData->width, mData->height };
 	AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, false);
 	int iWidth = r.right - r.left;
 	int iHeight = r.bottom - r.top;
@@ -152,9 +155,10 @@ bool MEKRender::RenderThread()
 	}*/
 
 	RenderDevice* device = new RenderDevice11();
+	gDevice = device;
 	RECT rect;
 	GetClientRect(hWnd, &rect);
-	if (device->Initialize(hWnd,(rect.right - rect.left), (rect.bottom - rect.top)) != EC_None)
+	if (device->Initialize(hWnd, mData->width, mData->height) != EC_None)
 	{
 		MessageBox(0, _T("初始化设备失败!"), 0, 0);
 		return 0;
@@ -163,7 +167,6 @@ bool MEKRender::RenderThread()
 	VertexType* vertexData = new VertexType[4];
 	memset(vertexData, 0, sizeof(VertexType) * 4);
 
-	//上 
 	vertexData[0] = VertexType(Vector3(-1.0f, -1.0f, 0), Vector2(0, 1));
 	vertexData[1] = VertexType(Vector3(-1.0, 1.0f, 0), Vector2(0, 0));
 	vertexData[2] = VertexType(Vector3(1.0f, 1.0f, 0), Vector2(1, 0));
@@ -173,7 +176,6 @@ bool MEKRender::RenderThread()
 	unsigned int* indexData = new unsigned int[6];
 	memset(indexData, 0, sizeof(unsigned int) * 6);
 
-	// 上
 	indexData[0] = 0;	indexData[1] = 1;	indexData[2] = 2;
 	indexData[3] = 0;	indexData[4] = 2;	indexData[5] = 3;
 
@@ -182,6 +184,10 @@ bool MEKRender::RenderThread()
 	Texture2D* diffuseTexture = device->CreateTexture(TT_Texture2D, String(_T("../../Bin/Assets/Textures/2.png")));
 
 	Texture2D* dynamicTexure = device->CreateTexture(TT_Texture2D, 512, 512, TF_RGBA32);
+	if (!gDynamicTexuture)
+	{
+		gDynamicTexuture = device->CreateTexture(TT_Texture2D, mData->width, mData->height, TF_RGBA32);
+	}
 
 	VertexShader* diffuseVertexShader = (VertexShader*)device->CreateShader(SS_Vertex, String(_T("../../Bin/Assets/Shaders/Diffuse.vs")));
 
@@ -207,7 +213,7 @@ bool MEKRender::RenderThread()
 		}
 		else
 		{
-			int pitch;
+			/*int pitch;
 			void* pData = device->Map(dynamicTexure, pitch);
 			{
 				for (int h = 0 ; h < 512; h++)
@@ -221,11 +227,9 @@ bool MEKRender::RenderThread()
 					}
 				}
 			}
-			device->Unmap(dynamicTexure);
-			device->Render(vertex, index, dynamicTexure, diffuseVertexShader, diffusePixelShader);
+			device->Unmap(dynamicTexure);*/
+			device->Render(vertex, index, gDynamicTexuture, diffuseVertexShader, diffusePixelShader);
 		}
-
 	}
-
 	return 0;
 }

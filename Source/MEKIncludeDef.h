@@ -8,6 +8,9 @@ extern "C"
 #include "libavformat/avformat.h"
 #include "libswresample/swresample.h"
 #include "libavutil/avutil.h"
+#include "libavutil/imgutils.h"
+#include "libswscale/swscale.h"
+#include "libavformat/avformat.h"
 #include "sdl/SDL.h"
 //#include "sdl/SDL_thread.h"
 }
@@ -15,17 +18,21 @@ extern "C"
 #include <process.h>
 #define SAFEDELETE(x) if(x){ delete (x); x = NULL;}
 
-
 typedef struct MEKVideo
 {
 	AVCodecContext	*pVideoContex = NULL;
 	AVCodec			*pVideoCodec = NULL;
 	AVStream		*pVideoStream = NULL;
+	struct SwsContext *pImgConvertCtx = NULL;
+	AVFrame			*pYUVFrame = NULL;
+	AVFrame			*pRGBFrame = NULL;
 	int				nVideoIndex = -1;
 	FrameQueue		*pVideoQueue;
 	MEKVideo()
 	{
 		pVideoQueue = new FrameQueue();
+		pYUVFrame = av_frame_alloc();
+		pRGBFrame = av_frame_alloc();
 	}
 }*pMEKVideo;
 
