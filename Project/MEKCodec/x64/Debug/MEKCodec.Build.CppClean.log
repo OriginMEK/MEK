@@ -7,6 +7,13 @@ d:\version\mek\project\mekcodec\x64\debug\mekplayer.obj
 d:\version\mek\project\mekcodec\x64\debug\mekqueue.obj
 d:\version\mek\project\mekcodec\x64\debug\mekrender.obj
 d:\version\mek\project\mekcodec\x64\debug\mekspliter.obj
+<<<<<<< HEAD
+d:\version\mek\project\mekcodec\x64\debug\re_pixelshader.obj
+d:\version\mek\project\mekcodec\x64\debug\re_renderdevice11.obj
+d:\version\mek\project\mekcodec\x64\debug\re_texture2d.obj
+d:\version\mek\project\mekcodec\x64\debug\re_vertexshader.obj
+=======
+>>>>>>> b22f8a189a2ab8ef855b339c2f2e8419fcfb1eaf
 d:\version\mek\project\mekcodec\x64\debug\stdafx.obj
 d:\version\mek\bin\x64\debug\mekcodec.ilk
 d:\version\mek\bin\x64\debug\mekcodec.dll

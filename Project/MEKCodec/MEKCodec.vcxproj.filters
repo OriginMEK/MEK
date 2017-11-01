@@ -16,6 +16,9 @@
     <Filter Include="CodecCore">
       <UniqueIdentifier>{928e7316-7255-4af4-adee-574aa5a94253}</UniqueIdentifier>
     </Filter>
+    <Filter Include="RenderCore">
+      <UniqueIdentifier>{8e474744-1245-4454-93ad-a8122a97c14d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\dllmain.cpp">
@@ -42,6 +45,21 @@
     <ClCompile Include="..\..\Source\MEKRender.cpp">
       <Filter>CodecCore</Filter>
     </ClCompile>
+<<<<<<< HEAD
+    <ClCompile Include="..\..\Source\RE_VertexShader.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\RE_Texture2D.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\RE_RenderDevice11.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\RE_PixelShader.cpp">
+      <Filter>RenderCore</Filter>
+    </ClCompile>
+=======
+>>>>>>> b22f8a189a2ab8ef855b339c2f2e8419fcfb1eaf
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\MEKCodec.h">
@@ -77,6 +95,57 @@
     <ClInclude Include="..\..\Source\MEKRender.h">
       <Filter>CodecCore</Filter>
     </ClInclude>
+<<<<<<< HEAD
+    <ClInclude Include="..\..\Source\RE_VertexShader.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_VertexBuffer.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_Vector3.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_Vector2.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_Texture2D.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_Texture.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_String.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_Shader.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_RenderDevice11.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_RenderDevice.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_PixelShader.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_Log.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_IndexBuffer.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_Declare.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_ConstantBuffer.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\RE_Buffer.h">
+      <Filter>RenderCore</Filter>
+    </ClInclude>
+=======
+>>>>>>> b22f8a189a2ab8ef855b339c2f2e8419fcfb1eaf
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MEKCodec.rc">

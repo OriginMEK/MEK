@@ -1,5 +1,47 @@
+Project/MEKCodec/.vs/MEKCodec
+Bin/x64/Debug
+Project/MEKCodec/ipch/
+Project/MEKPlayer/x64/
+Project/MEKCodec/x64/Debug/
+Lib/
+Pdb/
 Project/MEKCodec/MEKCodec.VC.VC.opendb
+Project/MEKCodec/MEKCodec.vcxproj.filters
 Project/MEKCodec/MEKCodec.VC.db
+#########################################
+# https://github.com/github/gitignore
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
 *.opendb
 *.db
 *.log
