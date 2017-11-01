@@ -81,6 +81,7 @@ void FrameQueue::enqueue(const PARSERDISPINFO *pPicParams)
 {
 	// Mark the frame as 'in-use' so we don't re-use it for decoding until it is no longer needed
 	// for display
+	
 	aIsFrameInUse_[pPicParams->picture_index] = true;
 
 	// Wait until we have a free entry in the display queue (should never block if we have enough entries)

@@ -8,6 +8,8 @@ extern "C"
 #include "libavformat/avformat.h"
 #include "libswresample/swresample.h"
 #include "libavutil/avutil.h"
+#include "sdl/SDL.h"
+//#include "sdl/SDL_thread.h"
 }
 #include "MEKQueue.h"
 #include <process.h>
@@ -20,9 +22,10 @@ typedef struct MEKVideo
 	AVCodec			*pVideoCodec = NULL;
 	AVStream		*pVideoStream = NULL;
 	int				nVideoIndex = -1;
-	FrameQueue		videoQueue;
+	FrameQueue		*pVideoQueue;
 	MEKVideo()
 	{
+		pVideoQueue = new FrameQueue();
 	}
 }*pMEKVideo;
 
@@ -32,11 +35,11 @@ typedef struct MEKAudio
 	AVCodec			*pAudioCodec = NULL;
 	AVStream		*pAudioStream = NULL;
 	int				nAudioIndex = -1;
-	FrameQueue		audioQueue;
+	FrameQueue		*pAudioQueue;
 
 	MEKAudio()
 	{
-		
+		pAudioQueue = new FrameQueue();
 	}
 }*pMEKAudio;
 

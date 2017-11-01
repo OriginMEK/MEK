@@ -26,7 +26,7 @@ typedef struct _PARSERDISPINFO
 class FrameQueue
 {
 public:
-	static const unsigned int cnMaximumSize = 20;
+	static const unsigned int cnMaximumSize = 200;
 private:
 	void signalStatusChange();
 

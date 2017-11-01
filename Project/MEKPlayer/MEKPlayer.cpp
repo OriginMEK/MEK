@@ -4,11 +4,10 @@
 #include "stdafx.h"
 #include "MEKPlayer.h"
 #include "../../Source/MEKCodec.h"
-//#include "MEKCodec.h"
-#pragma comment(lib,"../../lib/MEKCodec.lib")//../../Bin/x64/Debug/MEKCodec.dll
-
+#pragma comment(lib,"../../lib/MEKCodec.lib")
 #define MAX_LOADSTRING 100
 
+CMEKCodec codec;
 // 全局变量: 
 HINSTANCE hInst;                                // 当前实例
 WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
@@ -29,8 +28,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // TODO: 在此放置代码。
-	CMEKCodec codec;
-	codec.Init("test");
+	codec.Init("E:\\work\\clips\\fly.mp4");
 	//----------------
     // 初始化全局字符串
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -42,7 +40,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return FALSE;
     }
-
+	codec.Start();
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_MEKPLAYER));
 
     MSG msg;
@@ -109,7 +107,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    {
       return FALSE;
    }
-
+   codec.SetWnd(hWnd);
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 

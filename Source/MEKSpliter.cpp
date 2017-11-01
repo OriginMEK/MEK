@@ -30,7 +30,7 @@ bool MEKSpliter::AnalyzeFile(char* fileName, MEKParam* data)
 
 	av_dump_format(data->pFormatContex, 0, fileName, false);
 	
-	if (OpenCodecContext(&(data->videoParam->nVideoIndex), &(data->videoParam->pVideoContex), data->pFormatContex, AVMEDIA_TYPE_VIDEO) > 0)
+	if (OpenCodecContext(&(data->videoParam->nVideoIndex), &(data->videoParam->pVideoContex), data->pFormatContex, AVMEDIA_TYPE_VIDEO) >= 0)
 	{
 		data->videoParam->pVideoStream = data->pFormatContex->streams[data->videoParam->nVideoIndex];
 		data->width = data->videoParam->pVideoContex->width;
@@ -38,14 +38,20 @@ bool MEKSpliter::AnalyzeFile(char* fileName, MEKParam* data)
 		data->pix_fmt = data->videoParam->pVideoContex->pix_fmt;
 	}
 
-	if (OpenCodecContext(&(data->audioParam->nAudioIndex), &(data->audioParam->pAudioContex), data->pFormatContex, AVMEDIA_TYPE_AUDIO) > 0)
+	if (OpenCodecContext(&(data->audioParam->nAudioIndex), &(data->audioParam->pAudioContex), data->pFormatContex, AVMEDIA_TYPE_AUDIO) >= 0)
 	{
-		//data->audioParam->pAudioStream = data->pFormatContex->streams[data->audioParam->nAudioIndex];
+		data->audioParam->pAudioStream = data->pFormatContex->streams[data->audioParam->nAudioIndex];
 	}
 	//没有视屏轨
 	if (data->videoParam->nVideoIndex == -1)
 	{
 		return false;
+	}
+
+	if (data->audioParam->nAudioIndex != -1)
+	{
+		if (SDL_Init(SDL_INIT_AUDIO))
+			return false;
 	}
 
 	//开启拆包线程
@@ -93,6 +99,7 @@ int MEKSpliter::OpenCodecContext(int *streamIndex, AVCodecContext **dec_ctx, AVF
 		}
 		*streamIndex = stream_index;
 	}
+	return 0;
 }
 
 void MEKSpliter::SpliterThread()
@@ -117,13 +124,17 @@ void MEKSpliter::SpliterThread()
 			break;
 		}
 
-		if (param->data.stream_index = mData->videoParam->nVideoIndex)
+		if (param->data.stream_index == mData->videoParam->nVideoIndex)
 		{
-			mData->videoParam->videoQueue.enqueue(param);
+			static int index = 0;
+			param->picture_index = (index++) % 20;
+			mData->videoParam->pVideoQueue->enqueue(param);
 		}
-		else if (param->data.stream_index = mData->audioParam->nAudioIndex)
+		else if (param->data.stream_index == mData->audioParam->nAudioIndex)
 		{
-			mData->audioParam->audioQueue.enqueue(param);
+			static int index = 0;
+			param->picture_index = (index++) % 20;
+			//mData->audioParam->pAudioQueue->enqueue(param);
 		}
 		else
 		{
