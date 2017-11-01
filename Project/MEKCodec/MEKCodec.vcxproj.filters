@@ -45,6 +45,7 @@
     <ClCompile Include="..\..\Source\MEKRender.cpp">
       <Filter>CodecCore</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="..\..\Source\RE_VertexShader.cpp">
       <Filter>RenderCore</Filter>
     </ClCompile>
@@ -57,6 +58,8 @@
     <ClCompile Include="..\..\Source\RE_PixelShader.cpp">
       <Filter>RenderCore</Filter>
     </ClCompile>
+=======
+>>>>>>> b22f8a189a2ab8ef855b339c2f2e8419fcfb1eaf
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\MEKCodec.h">
@@ -92,6 +95,7 @@
     <ClInclude Include="..\..\Source\MEKRender.h">
       <Filter>CodecCore</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\..\Source\RE_VertexShader.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
@@ -140,6 +144,8 @@
     <ClInclude Include="..\..\Source\RE_Buffer.h">
       <Filter>RenderCore</Filter>
     </ClInclude>
+=======
+>>>>>>> b22f8a189a2ab8ef855b339c2f2e8419fcfb1eaf
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MEKCodec.rc">

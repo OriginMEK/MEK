@@ -11,6 +11,7 @@ public:
 	MEKDecoder();
 	~MEKDecoder();
 	bool BeginDecode(MEKParam* mData);
+<<<<<<< HEAD
 	static void StartDecoderVideo(void* param)
 	{
 		MEKDecoder* decoder = (MEKDecoder*)param;
@@ -20,6 +21,12 @@ public:
 	static void StartDecoderAudio(void* param)
 	{
 		MEKDecoder* decoder = (MEKDecoder*)param;
+=======
+	static void Start(void* param)
+	{
+		MEKDecoder* decoder = (MEKDecoder*)param;
+		decoder->DecoderVideoThread();
+>>>>>>> b22f8a189a2ab8ef855b339c2f2e8419fcfb1eaf
 		decoder->DecoderAudioThread();
 	}
 private:

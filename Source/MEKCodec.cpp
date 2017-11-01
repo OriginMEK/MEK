@@ -35,7 +35,11 @@ bool CMEKCodec::SetCallBackFn(pCallBackFn fn)
 
 bool CMEKCodec::SetWnd(HWND hWnd)
 {
+<<<<<<< HEAD
 	return Singleton<MEKPlayer>::Instance()->SetWnd(hWnd);
+=======
+	return false;
+>>>>>>> b22f8a189a2ab8ef855b339c2f2e8419fcfb1eaf
 }
 
 bool CMEKCodec::Start()

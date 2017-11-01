@@ -42,3 +42,7 @@ Project/MEKCodec/MEKCodec.VC.db
 *.exe
 *.out
 *.app
+*.opendb
+*.db
+*.log
+

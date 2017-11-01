@@ -124,6 +124,7 @@ void MEKSpliter::SpliterThread()
 			break;
 		}
 
+<<<<<<< HEAD
 		if (param->data.stream_index == mData->videoParam->nVideoIndex)
 		{
 			static int index = 0;
@@ -135,6 +136,15 @@ void MEKSpliter::SpliterThread()
 			static int index = 0;
 			param->picture_index = (index++) % 20;
 			//mData->audioParam->pAudioQueue->enqueue(param);
+=======
+		if (param->data.stream_index = mData->videoParam->nVideoIndex)
+		{
+			mData->videoParam->videoQueue.enqueue(param);
+		}
+		else if (param->data.stream_index = mData->audioParam->nAudioIndex)
+		{
+			mData->audioParam->audioQueue.enqueue(param);
+>>>>>>> b22f8a189a2ab8ef855b339c2f2e8419fcfb1eaf
 		}
 		else
 		{

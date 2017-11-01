@@ -1,4 +1,5 @@
 #include "MEKRender.h"
+<<<<<<< HEAD
 #include "RE_RenderDevice11.h"
 using namespace M1000Group;
 
@@ -18,6 +19,8 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
+=======
+>>>>>>> b22f8a189a2ab8ef855b339c2f2e8419fcfb1eaf
 
 MEKRender::MEKRender()
 {
@@ -28,6 +31,7 @@ MEKRender::~MEKRender()
 {
 
 }
+<<<<<<< HEAD
 
 void MEKRender::SetRenderWnd(HWND hWnd)
 {
@@ -212,3 +216,5 @@ bool MEKRender::RenderThread()
 
 	return 0;
 }
+=======
+>>>>>>> b22f8a189a2ab8ef855b339c2f2e8419fcfb1eaf

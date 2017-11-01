@@ -22,7 +22,11 @@ bool MEKPlayer::Init(char* pathName)
 	{
 		mSpliter = new MEKSpliter();
 	}
+<<<<<<< HEAD
 	//mSpliter->AnalyzeFile(pathName, mData);
+=======
+	mSpliter->AnalyzeFile(pathName, mData);
+>>>>>>> b22f8a189a2ab8ef855b339c2f2e8419fcfb1eaf
 
 	if (!mDecoder)
 	{
@@ -30,10 +34,13 @@ bool MEKPlayer::Init(char* pathName)
 	}	
 	mDecoder->BeginDecode(mData);
 
+<<<<<<< HEAD
 	if (!mRender)
 	{
 		mRender = new MEKRender();
 	}
+=======
+>>>>>>> b22f8a189a2ab8ef855b339c2f2e8419fcfb1eaf
 	return false;
 }
 
