@@ -32,7 +32,7 @@ namespace M1000Group
 		virtual Buffer* CreateBuffer(enum BufferType type, void* data, int perSize, int Count);
 		virtual Texture2D* CreateTexture(enum TextureType type, class String fileName);
 		virtual class Shader* CreateShader(enum ShaderStage stage, class String fileName);
-		virtual void Render(Buffer* vertex, Buffer* index, class Texture* tex, class Texture* tex1, Shader* vs, Shader* ps);
+		virtual void Render(Buffer* vertex, Buffer* index, class Texture* tex, Shader* vs, Shader* ps);
 
 	private:
 		ID3D11Device*		mDevice;

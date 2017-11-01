@@ -22,7 +22,7 @@ bool MEKPlayer::Init(char* pathName)
 	{
 		mSpliter = new MEKSpliter();
 	}
-	mSpliter->AnalyzeFile(pathName, mData);
+	//mSpliter->AnalyzeFile(pathName, mData);
 
 	if (!mDecoder)
 	{

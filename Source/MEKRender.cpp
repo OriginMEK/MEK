@@ -142,17 +142,19 @@ bool MEKRender::RenderThread()
 	int iLeft = (GetSystemMetrics(SM_CXSCREEN) - iWidth) / 2;
 	int iTop = (GetSystemMetrics(SM_CYSCREEN) - iHeight) / 2;
 
-	HWND hwnd = CreateWindowEx(WS_EX_APPWINDOW, _T("WndClass"), _T("MainFrm"),
+	/*HWND hwnd = CreateWindowEx(WS_EX_APPWINDOW, _T("WndClass"), _T("MainFrm"),
 		WS_OVERLAPPEDWINDOW, iLeft, iTop, iWidth, iHeight,
 		NULL, NULL, hInstance, NULL);
 	if (!hwnd)
 	{
 		MessageBox(0, _T("创建窗口失败!"), 0, 0);
 		return false;
-	}
+	}*/
 
 	RenderDevice* device = new RenderDevice11();
-	if (device->Initialize(hwnd, 800, 600) != EC_None)
+	RECT rect;
+	GetClientRect(hWnd, &rect);
+	if (device->Initialize(hWnd,(rect.right - rect.left), (rect.bottom - rect.top)) != EC_None)
 	{
 		MessageBox(0, _T("初始化设备失败!"), 0, 0);
 		return 0;
@@ -162,10 +164,10 @@ bool MEKRender::RenderThread()
 	memset(vertexData, 0, sizeof(VertexType) * 4);
 
 	//上 
-	vertexData[0] = VertexType(Vector3(-1.0f, -1.0f, 1.0f), Vector2(0, 1));
-	vertexData[1] = VertexType(Vector3(-1.0, 1.0f, 1.0f), Vector2(0, 0));
-	vertexData[2] = VertexType(Vector3(1.0f, 1.0f, 1.0f), Vector2(1, 0));
-	vertexData[3] = VertexType(Vector3(1.0f, -1.0f, 1.0f), Vector2(1, 1));
+	vertexData[0] = VertexType(Vector3(-1.0f, -1.0f, 0), Vector2(0, 1));
+	vertexData[1] = VertexType(Vector3(-1.0, 1.0f, 0), Vector2(0, 0));
+	vertexData[2] = VertexType(Vector3(1.0f, 1.0f, 0), Vector2(1, 0));
+	vertexData[3] = VertexType(Vector3(1.0f, -1.0f, 0), Vector2(1, 1));
 	Buffer* vertex = device->CreateBuffer(BT_Vertex, vertexData, sizeof(VertexType), 4);
 
 	unsigned int* indexData = new unsigned int[6];
@@ -177,16 +179,14 @@ bool MEKRender::RenderThread()
 
 	Buffer* index = device->CreateBuffer(BT_Index, indexData, sizeof(unsigned int), 6);
 
-	Texture2D* diffuseTexture = device->CreateTexture(TT_Texture2D, String(_T("../../Bin/Assets/Textures/quad.png")));
-
-	Texture2D* diffuseTexture1 = device->CreateTexture(TT_Texture2D, String(_T("../../Bin/Assets/Textures/test.png")));
+	Texture2D* diffuseTexture = device->CreateTexture(TT_Texture2D, String(_T("../../Bin/Assets/Textures/2.png")));
 
 	VertexShader* diffuseVertexShader = (VertexShader*)device->CreateShader(SS_Vertex, String(_T("../../Bin/Assets/Shaders/Diffuse.vs")));
 
 	PixelShader* diffusePixelShader = (PixelShader*)device->CreateShader(SS_Pixel, String(_T("../../Bin/Assets/Shaders/Diffuse.ps")));
 
-	ShowWindow(hwnd, SW_SHOW);
-	UpdateWindow(hwnd);
+	ShowWindow(hWnd, SW_SHOW);
+	UpdateWindow(hWnd);
 
 	bool done = false;
 	MSG msg = { 0 };
@@ -205,7 +205,7 @@ bool MEKRender::RenderThread()
 		}
 		else
 		{
-			device->Render(vertex, index, diffuseTexture, diffuseTexture1, diffuseVertexShader, diffusePixelShader);
+			device->Render(vertex, index, diffuseTexture, diffuseVertexShader, diffusePixelShader);
 		}
 
 	}

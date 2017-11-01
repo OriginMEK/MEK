@@ -26,7 +26,7 @@ namespace M1000Group
 		virtual class Buffer* CreateBuffer(enum BufferType type, void* data, int perSize, int Count) = 0;
 		virtual class Texture2D* CreateTexture(enum TextureType type, class String fileName) = 0;
 		virtual class Shader* CreateShader(enum ShaderStage stage, class String fileName) = 0;
-		virtual void Render(Buffer* vertex,Buffer* index,class Texture* tex, class Texture* tex1,Shader* vs,Shader* ps) = 0;
+		virtual void Render(Buffer* vertex,Buffer* index,class Texture* tex, Shader* vs,Shader* ps) = 0;
 	};
 } //namespace M1000Group
 

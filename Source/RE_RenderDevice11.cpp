@@ -244,10 +244,10 @@ namespace M1000Group
 
 		mContext->RSSetState(mRasterState);
 
-		mD3DViewPort.Width = ceil(mScreenWidth * 1.39f);
-		mD3DViewPort.Height = ceil(mScreenHeight * 1.39f);
-		//mD3DViewPort.Width = (float)mScreenWidth;
-		//mD3DViewPort.Height = (float)mScreenHeight;
+		//mD3DViewPort.Width = ceil(mScreenWidth * 1.39f);
+		//mD3DViewPort.Height = ceil(mScreenHeight * 1.39f);
+		mD3DViewPort.Width = (float)mScreenWidth;
+		mD3DViewPort.Height = (float)mScreenHeight;
 		mD3DViewPort.MinDepth = 0.0f;
 		mD3DViewPort.MaxDepth = 1.0f;
 		mD3DViewPort.TopLeftX = 0.0f;
@@ -484,7 +484,7 @@ namespace M1000Group
 			vertexShaderBuffer->Release();
 			vertexShaderBuffer = 0;
 
-			//shader->mD3DBuffer = CreateBuffer(BT_Constant, 0 ,sizeof(float) * 48, 1);
+			shader->mD3DBuffer = CreateBuffer(BT_Constant, 0 ,sizeof(float) * 48, 1);
 
 			return shader;
 		}
@@ -534,7 +534,7 @@ namespace M1000Group
 		return NULL;
 	}
 
-	void RenderDevice11::Render(Buffer* vertex, Buffer* index, class Texture* tex, class Texture* tex1,Shader* vs, Shader* ps)
+	void RenderDevice11::Render(Buffer* vertex, Buffer* index, class Texture* tex, Shader* vs, Shader* ps)
 	{
 		float color[4];
 		color[0] = 0.16f;
