@@ -181,6 +181,8 @@ bool MEKRender::RenderThread()
 
 	Texture2D* diffuseTexture = device->CreateTexture(TT_Texture2D, String(_T("../../Bin/Assets/Textures/2.png")));
 
+	Texture2D* dynamicTexure = device->CreateTexture(TT_Texture2D, 512, 512, TF_RGBA32);
+
 	VertexShader* diffuseVertexShader = (VertexShader*)device->CreateShader(SS_Vertex, String(_T("../../Bin/Assets/Shaders/Diffuse.vs")));
 
 	PixelShader* diffusePixelShader = (PixelShader*)device->CreateShader(SS_Pixel, String(_T("../../Bin/Assets/Shaders/Diffuse.ps")));
@@ -205,7 +207,22 @@ bool MEKRender::RenderThread()
 		}
 		else
 		{
-			device->Render(vertex, index, diffuseTexture, diffuseVertexShader, diffusePixelShader);
+			int pitch;
+			void* pData = device->Map(dynamicTexure, pitch);
+			{
+				for (int h = 0 ; h < 512; h++)
+				{
+					for (int w = 0; w < 512; w++)
+					{
+						((unsigned char*)pData)[h * pitch + w * 4 + 0] = 166;
+						((unsigned char*)pData)[h * pitch + w * 4 + 1] = 166;
+						((unsigned char*)pData)[h * pitch + w * 4 + 2] = 0;
+						((unsigned char*)pData)[h * pitch + w * 4 + 3] = 255;
+					}
+				}
+			}
+			device->Unmap(dynamicTexure);
+			device->Render(vertex, index, dynamicTexure, diffuseVertexShader, diffusePixelShader);
 		}
 
 	}

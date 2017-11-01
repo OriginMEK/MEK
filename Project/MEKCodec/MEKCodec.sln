@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MEKCodec", "MEKCodec.vcxproj", "{D9008523-E5E0-4A18-8D11-84E3A440FB0B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MEKPlayer", "..\MEKPlayer\MEKPlayer.vcxproj", "{1A67B05E-9F85-44A0-8958-70796EB07B54}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D9008523-E5E0-4A18-8D11-84E3A440FB0B} = {D9008523-E5E0-4A18-8D11-84E3A440FB0B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

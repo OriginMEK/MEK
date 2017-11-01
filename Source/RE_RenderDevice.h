@@ -5,6 +5,7 @@
 #define _RE_RenderDevice_H__
 
 #include "RE_Declare.h"
+#include "RE_Texture.h"
 
 namespace M1000Group
 {
@@ -24,9 +25,14 @@ namespace M1000Group
 		virtual DeviceType GetType() = 0;
 		virtual ErrorCode Initialize(void* hwnd, int w, int h) = 0;
 		virtual class Buffer* CreateBuffer(enum BufferType type, void* data, int perSize, int Count) = 0;
+		/*创建静态纹理*/
 		virtual class Texture2D* CreateTexture(enum TextureType type, class String fileName) = 0;
+		/*创建动态纹理*/
+		virtual class Texture2D* CreateTexture(enum TextureType type, int width, int heigth, TextureFormat tf) = 0;
 		virtual class Shader* CreateShader(enum ShaderStage stage, class String fileName) = 0;
 		virtual void Render(Buffer* vertex,Buffer* index,class Texture* tex, Shader* vs,Shader* ps) = 0;
+		virtual void* Map(class Texture* tex, int& pitch) = 0;
+		virtual void Unmap(class Texture* tex) = 0;
 	};
 } //namespace M1000Group
 

@@ -31,24 +31,28 @@ namespace M1000Group
 		ErrorCode Initialize(void* hwnd, int w, int h);
 		virtual Buffer* CreateBuffer(enum BufferType type, void* data, int perSize, int Count);
 		virtual Texture2D* CreateTexture(enum TextureType type, class String fileName);
+		virtual Texture2D* CreateTexture(enum TextureType type, int width, int heigth, TextureFormat tf);
 		virtual class Shader* CreateShader(enum ShaderStage stage, class String fileName);
 		virtual void Render(Buffer* vertex, Buffer* index, class Texture* tex, Shader* vs, Shader* ps);
 
+		virtual void* Map(class Texture* tex, int& pitch);
+		virtual void Unmap(class Texture* tex);
+
 	private:
-		ID3D11Device*		mDevice;
-		ID3D11DeviceContext*	mContext;
-		IDXGISwapChain*		mSwapChain;
+		ID3D11Device*				mDevice;
+		ID3D11DeviceContext*		mContext;
+		IDXGISwapChain*				mSwapChain;
 		IDXGIFactory*				mDxGIFactory;
 		IDXGIAdapter*				mAdapter;
-		IDXGIOutput*					mOutput;
-		ID3D11RenderTargetView*	mRenderTargetView;
-		ID3D11Texture2D*					mDepthStencilBuffer;
+		IDXGIOutput*				mOutput;
+		ID3D11RenderTargetView*		mRenderTargetView;
+		ID3D11Texture2D*			mDepthStencilBuffer;
 		ID3D11DepthStencilState*	mDepthStencilState;
-		ID3D11DepthStencilView*	mDepthStencilView;
-		ID3D11RasterizerState*			mRasterState;
-		D3D11_VIEWPORT					mD3DViewPort;
+		ID3D11DepthStencilView*		mDepthStencilView;
+		ID3D11RasterizerState*		mRasterState;
+		D3D11_VIEWPORT				mD3DViewPort;
 
-		HWND			mWindow;
+		HWND				mWindow;
 		int					mScreenWidth;
 		int					mScreenHeight;
 		bool				bInitialized;

@@ -413,13 +413,80 @@ namespace M1000Group
 		break;
 		case TT_TextureRT:
 		{
-
 		}
 		break;
 		default:
 			break;
 		}
 		return NULL;
+	}
+
+	Texture2D* RenderDevice11::CreateTexture(enum TextureType type, int width, int heigth, TextureFormat tf)
+	{
+		switch (type)
+		{
+		case M1000Group::TT_Texture1D:
+			{
+				return 0;
+			}
+			break;
+		case M1000Group::TT_Texture2D:
+			{
+				Texture2D* texture = new Texture2D();
+
+				D3D11_TEXTURE2D_DESC desc = { 0 };
+				memset(&desc, 0, sizeof(desc));
+
+				desc.ArraySize = 1;
+				desc.BindFlags = D3D11_BIND_SHADER_RESOURCE/* | D3D11_BIND_RENDER_TARGET*/;
+				desc.Usage = D3D11_USAGE_DYNAMIC;
+				desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+				desc.MiscFlags = 0;
+				desc.Width = width;
+				desc.Height = heigth;
+				desc.MipLevels = 1;
+				//desc.MiscFlags = 0;
+				desc.SampleDesc.Count = 1;
+				desc.SampleDesc.Quality = 0;
+
+				switch (tf)
+				{
+				case M1000Group::TF_RGBA32:
+					desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+					break;
+				case M1000Group::TF_Unknow:
+					desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+					break;
+				default:
+					desc.Format = DXGI_FORMAT_UNKNOWN;
+					break;
+				}
+
+				HRESULT hr = mDevice->CreateTexture2D(&desc, NULL, &(texture->Tex));
+				if (FAILED(hr))
+				{
+					return NULL;
+				}
+
+				hr = mDevice->CreateShaderResourceView(texture->Tex, 0, &(texture->TexSv));
+				if (FAILED(hr))
+				{
+					return NULL;
+				}
+
+				texture->Format = tf;
+				texture->Width = width;
+				texture->Height = heigth;
+				texture->Samples = 0;
+
+				return texture;
+			}
+			break;
+		case M1000Group::TT_TextureRT:
+			break;
+		default:
+			break;
+		}
 	}
 
 	class Shader* RenderDevice11::CreateShader(enum ShaderStage stage, class String fileName)
@@ -609,6 +676,55 @@ namespace M1000Group
 		mContext->DrawIndexed(((IndexBuffer*)index)->BufferCount, 0, 0);
 
 		mSwapChain->Present(0, 0);
+	}
+
+	void* RenderDevice11::Map(class Texture* tex, int& pitch)
+	{
+		switch (tex->GetType())
+		{
+		case M1000Group::TT_Texture1D:
+		case M1000Group::TT_Texture2D:
+			{
+				Texture2D* tex2d = (Texture2D*)(tex);
+				D3D11_MAPPED_SUBRESOURCE mappedResource;
+				memset(&mappedResource, 0, sizeof(D3D11_MAPPED_SUBRESOURCE));
+				HRESULT hr = mContext->Map(tex2d->Tex, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+				if (FAILED(hr))
+				{
+					return 0;
+				}
+				pitch = mappedResource.RowPitch;
+				return mappedResource.pData;
+			}
+			break;
+		case M1000Group::TT_TextureRT:
+			{
+				return 0;
+			}
+			break;
+		default:
+			break;
+		}
+		return 0;
+	}
+
+	void RenderDevice11::Unmap(class Texture* tex)
+	{
+		switch (tex->GetType())
+		{
+		case M1000Group::TT_Texture1D:
+		case M1000Group::TT_Texture2D:
+			{
+				Texture2D* tex2d = (Texture2D*)tex;
+				mContext->Unmap(tex2d->Tex, 0);
+			}
+			break;
+		case M1000Group::TT_TextureRT:
+			{}
+			break;
+		default:
+			break;
+		}
 	}
 
 }
