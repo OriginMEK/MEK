@@ -127,7 +127,7 @@ void MEKSpliter::SpliterThread()
 		if (param->data.stream_index == mData->videoParam->nVideoIndex)
 		{
 			static int index = 0;
-			param->picture_index = (index++) % 20;
+			param->picture_index = (index++) % 200;
 			mData->videoParam->pVideoQueue->enqueue(param);
 		}
 		else if (param->data.stream_index == mData->audioParam->nAudioIndex)

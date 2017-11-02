@@ -1,10 +1,12 @@
 #include "MEKDecoder.h"
 #include "RE_Texture2D.h"
 #include "RE_RenderDevice11.h"
-
+#include <queue>
  using namespace M1000Group;
-extern Texture2D* gDynamicTexuture;
-extern RenderDevice	*gDevice;
+extern Texture2D* gDynamicTexuture[10];
+extern RenderDevice	*gDevice; 
+extern RenderQueue		gRenderQueue;
+
 
 int Snapt(AVCodecContext* m_pCodecCtx, AVFrame* pFrame, int width, int height, int bpp, char* fileName)
 {
@@ -154,20 +156,33 @@ int MEKDecoder::DecodePacket(AVPacket pkt, int *gotFrame, int cached)
 
 			sws_scale(mData->videoParam->pImgConvertCtx, (uint8_t const * const *)mData->videoParam->pYUVFrame->data, mData->videoParam->pYUVFrame->linesize, 0, mData->height, mData->videoParam->pRGBFrame->data, mData->videoParam->pRGBFrame->linesize);
 			
-			if (gDevice && gDynamicTexuture)
+			int index = gRenderQueue.GetWriteIndex();
+			if (index != -1)
 			{
-				int pitch;
-				int stride = mData->videoParam->pRGBFrame->linesize[0];
-				void* pData = gDevice->Map(gDynamicTexuture, pitch);
-				for (int h = 0; h < mData->height; h++)
+				if (gDevice && gDynamicTexuture[index])
 				{
-					//memcpy((unsigned char*)pData + pitch * h, (unsigned char*)mData->videoParam->pRGBFrame->data + mData->videoParam->pRGBFrame->linesize[0] * h, mData->videoParam->pRGBFrame->linesize[0]);
-					unsigned char* srcLine = (unsigned char*)(mData->videoParam->pRGBFrame->data[0]) + h * mData->videoParam->pRGBFrame->linesize[0];
-					unsigned char* dstLine = (unsigned char*)pData + h * pitch;
-					memcpy(dstLine, srcLine, pitch);
+					int pitch;
+					int stride = mData->videoParam->pRGBFrame->linesize[0];
+
+					char buff[256] = { 0 };
+					sprintf(buff, "------MapIndex:%d-----\n",index);
+					OutputDebugStringA(buff);
+
+					void* pData = gDevice->Map(gDynamicTexuture[index], pitch);
+					for (int h = 0; h < mData->height; h++)
+					{
+						unsigned char* srcLine = (unsigned char*)(mData->videoParam->pRGBFrame->data[0]) + h * mData->videoParam->pRGBFrame->linesize[0];
+						unsigned char* dstLine = (unsigned char*)pData + h * pitch;
+						memcpy(dstLine, srcLine, pitch);
+					}
+					gDevice->Unmap(gDynamicTexuture[index]);
 				}
-				gDevice->Unmap(gDynamicTexuture);
 			}
+			else
+			{
+				Sleep(1);
+			}
+			
 			Sleep(40);
 			char file[256] = { 0 };
 			SYSTEMTIME st = { 0 };

@@ -65,6 +65,76 @@ typedef struct MEKParam
 	}
 }*pMEKParam;
 
+class RenderQueue
+{
+private:
+	int mData[10] = {0,1,2,3,4,5,6,7,8,9 };
+	volatile int nReadPosotion_;
+	volatile int mTotalInQueue_;
+	volatile int bEndofDecode_;
+	CRITICAL_SECTION cs;
+public:
+	RenderQueue():
+		nReadPosotion_(0),
+		mTotalInQueue_(0), 
+		bEndofDecode_(0)
+	{
+		::InitializeCriticalSection(&cs);
+	}
+
+	~RenderQueue()
+	{
+		::DeleteCriticalSection(&cs);
+	}
+
+	int GetWriteIndex()
+	{
+		int ret = -1;
+		do 
+		{
+			bool bPlacedFrame = false;
+			::EnterCriticalSection(&cs);
+
+			if (mTotalInQueue_ < 10)
+			{
+				int iWritePosition = (nReadPosotion_ + mTotalInQueue_) % 10;
+				ret = iWritePosition;
+				mTotalInQueue_++;
+				bPlacedFrame = true;
+			}
+			::LeaveCriticalSection(&cs);
+
+			if (bPlacedFrame)
+				break;
+
+			sleep(1);   // Wait a bit
+		} while (!bEndofDecode_);
+		return ret;
+	}
+
+	int GetReadIndex()
+	{
+		int ret = -1;
+		bool bHaveNewFrame = false;
+		::EnterCriticalSection(&cs);
+
+		if (mTotalInQueue_ > 0)
+		{
+			int iEntry = nReadPosotion_;
+			ret = iEntry;
+			nReadPosotion_ = (iEntry + 1) % 10;
+			mTotalInQueue_--;
+			bHaveNewFrame = true;
+		}
+		else
+		{
+			ret = nReadPosotion_ - 1;
+		}
+		::LeaveCriticalSection(&cs);
+		return ret;
+	}
+
+};
 /*
 	时间 : 2017-10-27 17:30:02
 	作者	: zhaohu

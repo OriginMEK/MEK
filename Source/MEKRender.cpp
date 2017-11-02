@@ -19,8 +19,10 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-Texture2D		*gDynamicTexuture = NULL;
+Texture2D		*gDynamicTexuture[10] = { 0 };
+
 RenderDevice	*gDevice = NULL;
+RenderQueue		gRenderQueue;
 
 MEKRender::MEKRender(MEKParam* mData)
 {
@@ -184,9 +186,12 @@ bool MEKRender::RenderThread()
 	Texture2D* diffuseTexture = device->CreateTexture(TT_Texture2D, String(_T("../../Bin/Assets/Textures/2.png")));
 
 	Texture2D* dynamicTexure = device->CreateTexture(TT_Texture2D, 512, 512, TF_RGBA32);
-	if (!gDynamicTexuture)
+	if (!gDynamicTexuture[0])
 	{
-		gDynamicTexuture = device->CreateTexture(TT_Texture2D, mData->width, mData->height, TF_RGBA32);
+		for (int i = 0; i < 10 ;i++)
+		{
+			gDynamicTexuture[i] = device->CreateTexture(TT_Texture2D, mData->width, mData->height, TF_RGBA32);
+		}
 	}
 
 	VertexShader* diffuseVertexShader = (VertexShader*)device->CreateShader(SS_Vertex, String(_T("../../Bin/Assets/Shaders/Diffuse.vs")));
@@ -228,7 +233,21 @@ bool MEKRender::RenderThread()
 				}
 			}
 			device->Unmap(dynamicTexure);*/
-			device->Render(vertex, index, gDynamicTexuture, diffuseVertexShader, diffusePixelShader);
+
+			
+
+			int i = gRenderQueue.GetReadIndex();
+			if (i != -1)
+			{
+				device->Render(vertex, index, gDynamicTexuture[i], diffuseVertexShader, diffusePixelShader);
+				char buff[256] = { 0 };
+				sprintf(buff, "------RenderIndex:%d-----\n", i);
+				OutputDebugStringA(buff);
+			}
+			else
+			{
+				int i = 0;
+			}
 		}
 	}
 	return 0;
