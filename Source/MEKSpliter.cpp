@@ -133,8 +133,8 @@ void MEKSpliter::SpliterThread()
 		else if (param->data.stream_index == mData->audioParam->nAudioIndex)
 		{
 			static int index = 0;
-			param->picture_index = (index++) % 20;
-			//mData->audioParam->pAudioQueue->enqueue(param);
+			param->picture_index = (index++) % 200;
+			mData->audioParam->pAudioQueue->enqueue(param);
 		}
 		else
 		{

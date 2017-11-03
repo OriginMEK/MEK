@@ -9,15 +9,15 @@ extern "C"
 #include "libswresample/swresample.h"
 #include "libavutil/avutil.h"
 #include "libavutil/imgutils.h"
+#include "libavutil/time.h"
 #include "libswscale/swscale.h"
 #include "libavformat/avformat.h"
 #include "sdl/SDL.h"
-//#include "sdl/SDL_thread.h"
 }
 #include "MEKQueue.h"
 #include <process.h>
 #define SAFEDELETE(x) if(x){ delete (x); x = NULL;}
-
+#define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000 
 typedef struct MEKVideo
 {
 	AVCodecContext	*pVideoContex = NULL;
@@ -41,12 +41,37 @@ typedef struct MEKAudio
 	AVCodecContext	*pAudioContex = NULL;
 	AVCodec			*pAudioCodec = NULL;
 	AVStream		*pAudioStream = NULL;
+	AVFrame			*pFrame = NULL;
 	int				nAudioIndex = -1;
 	FrameQueue		*pAudioQueue;
+
+	enum AVSampleFormat audio_src_fmt;
+	enum AVSampleFormat audio_tgt_fmt;
+	int				audio_src_freq;
+	int				audio_tgt_freq;
+	int				audio_tgt_channel_layout;
+	int				audio_src_channel_layout;
+	int				audio_src_channels;
+	int				audio_tgt_channels;
+
+	SDL_AudioDeviceID	audioDeviceID;
+	unsigned int	audio_buf_size;
+	unsigned int	audio_buf_index;
+	int				audio_pkt_siz;
+	uint8_t			*audio_pkt_data;
+	uint8_t			*audio_buf;
+	double			audio_clock;
+	DECLARE_ALIGNED(16, uint8_t, audio_buf2)[AVCODEC_MAX_AUDIO_FRAME_SIZE * 4];
+	struct SwrContext	*pAudioSwrConvert;
 
 	MEKAudio()
 	{
 		pAudioQueue = new FrameQueue();
+		pFrame = av_frame_alloc();
+		audio_buf_size = 0;
+		audio_buf_index = 0;
+		audio_pkt_siz = 0;
+		pAudioSwrConvert = NULL;
 	}
 }*pMEKAudio;
 

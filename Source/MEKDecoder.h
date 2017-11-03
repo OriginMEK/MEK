@@ -22,10 +22,12 @@ public:
 		MEKDecoder* decoder = (MEKDecoder*)param;
 		decoder->DecoderAudioThread();
 	}
+	MEKParam* GetData() { return mData; }
+
+	int DecodePacket(AVPacket pkt, int *gotFrame, int cached);
 private:
 	MEKParam* mData;
 	void DecoderVideoThread();
 	void DecoderAudioThread();
-	int DecodePacket(AVPacket pkt, int *gotFrame, int cached);
 };
 #endif //MEKDECODER_H_

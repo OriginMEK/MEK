@@ -1,12 +1,65 @@
 #include "MEKDecoder.h"
 #include "RE_Texture2D.h"
 #include "RE_RenderDevice11.h"
-#include <queue>
- using namespace M1000Group;
-extern Texture2D* gDynamicTexuture[10];
-extern RenderDevice	*gDevice; 
-extern RenderQueue		gRenderQueue;
 
+using namespace M1000Group;
+extern Texture2D	*gDynamicTexuture[10];
+extern RenderDevice	*gDevice; 
+extern RenderQueue	gRenderQueue;
+static int64_t audio_callback_time = 0;
+#define  SDL_AUDIO_BUFFER_SIZE 1024
+
+void AudioCallBackFn(void *udata, Uint8 *stream, int len)
+{
+	MEKDecoder* decoder = (MEKDecoder*)udata;
+
+	PARSERDISPINFO oDisplayInfo;
+
+	MEKDecoder* Decoder = (MEKDecoder*)udata;
+	/*if (Decoder->GetData()->audioParam->pAudioQueue->dequeue(&oDisplayInfo))
+	{
+		int got_frame;
+		Decoder->DecodePacket(oDisplayInfo.data, &got_frame, 0);
+	}*/
+
+	/*
+	将解码后的数据全部拷贝到SDL缓冲区
+	*/
+	MEKAudio* audioParam = Decoder->GetData()->audioParam;
+	int len1, audio_size;
+	double pts;
+	audio_callback_time = av_gettime_relative();
+	while (len > 0)
+	{
+		if (audioParam->audio_buf_index >= audioParam->audio_buf_size)
+		{
+			int got_frame;
+			loop:
+			Decoder->GetData()->audioParam->pAudioQueue->dequeue(&oDisplayInfo);
+			audio_size = Decoder->DecodePacket(oDisplayInfo.data, &got_frame, 0);
+			if (got_frame)
+			{
+			}
+			if (audio_size < 0)
+			{
+				audioParam->audio_buf_size = 1024;
+				//memset(audioParam->audio_buf, 0, audioParam->audio_buf_size);
+			}
+			else
+			{
+				audioParam->audio_buf_size = audio_size;
+			}
+			audioParam->audio_buf_index = 0;
+		}
+		len1 = audioParam->audio_buf_size - audioParam->audio_buf_index;
+		if (len1 > len)
+			len1 = len;
+		memcpy(stream, (uint8_t*)audioParam->audio_buf + audioParam->audio_buf_index, len1);
+		len -= len1;
+		stream += len1;
+		audioParam->audio_buf_index += len1;
+	}
+}
 
 int Snapt(AVCodecContext* m_pCodecCtx, AVFrame* pFrame, int width, int height, int bpp, char* fileName)
 {
@@ -94,7 +147,75 @@ void MEKDecoder::DecoderVideoThread()
 
 void MEKDecoder::DecoderAudioThread()
 {
-	while (true)
+	/*
+		解码音频并且使用SDL播放
+	*/
+	CoInitialize(NULL);
+
+	if (mData->audioParam->nAudioIndex < 0 || mData->audioParam->nAudioIndex >= mData->pFormatContex->nb_streams)
+	{
+		return;
+	}
+	
+	SDL_AudioSpec	wanted_spec, spec;
+	int64_t			wanted_channel_layout = 0;
+	int				wanted_nb_channels;
+	const int		next_nb_channels[] = { 0, 0, 1, 6, 2, 6, 4, 6 };
+
+	wanted_nb_channels = mData->audioParam->pAudioContex->channels;
+	if (!wanted_channel_layout || wanted_nb_channels != av_get_channel_layout_nb_channels(wanted_channel_layout))
+	{
+		wanted_channel_layout = av_get_default_channel_layout(wanted_nb_channels);
+		wanted_channel_layout &= ~AV_CH_LAYOUT_STEREO_DOWNMIX;
+	}
+
+	wanted_spec.channels = av_get_channel_layout_nb_channels(wanted_channel_layout);
+	wanted_spec.freq = mData->audioParam->pAudioContex->sample_rate;
+	if (wanted_spec.freq < 0 || wanted_spec.channels < 0)
+	{
+		return;
+	}
+
+	wanted_spec.format = AUDIO_S16SYS;
+	wanted_spec.silence = 0;
+	wanted_spec.samples = SDL_AUDIO_BUFFER_SIZE;
+	wanted_spec.callback = AudioCallBackFn;
+	wanted_spec.userdata = this;
+
+	do 
+	{
+		mData->audioParam->audioDeviceID = SDL_OpenAudioDevice(SDL_GetAudioDeviceName(0, 0), 0, &wanted_spec, &spec, 0);
+		const char* LastError = SDL_GetError();
+		wanted_spec.channels = next_nb_channels[FFMIN(7, wanted_spec.channels)];
+		if (!wanted_spec.channels)
+		{
+			break;
+		}
+	} while (mData->audioParam->audioDeviceID == 0);
+
+	if (spec.format != AUDIO_S16SYS)
+	{
+		return;
+	}
+
+	if (spec.channels != wanted_spec.channels)
+	{
+		wanted_channel_layout = av_get_default_channel_layout(spec.channels);
+		if (!wanted_channel_layout)
+		{
+			return;
+		}
+	}
+
+	/*Save the param*/
+	mData->audioParam->audio_src_fmt = mData->audioParam->audio_tgt_fmt = AV_SAMPLE_FMT_S16;
+	mData->audioParam->audio_src_freq = mData->audioParam->audio_tgt_freq = spec.freq;
+	mData->audioParam->audio_src_channel_layout = mData->audioParam->audio_tgt_channel_layout = wanted_channel_layout;
+	mData->audioParam->audio_src_channels = mData->audioParam->audio_tgt_channels = spec.channels;
+
+	mData->audioParam->pAudioStream->discard = AVDISCARD_DEFAULT;
+	SDL_PauseAudioDevice(mData->audioParam->audioDeviceID, 0);
+	/*while (true)
 	{
 		PARSERDISPINFO oDisplayInfo;
 
@@ -103,7 +224,7 @@ void MEKDecoder::DecoderAudioThread()
 			int got_frame;
 			DecodePacket(oDisplayInfo.data, &got_frame, 0);
 		}
-	}
+	}*/
 }
 
 int MEKDecoder::DecodePacket(AVPacket pkt, int *gotFrame, int cached)
@@ -127,14 +248,8 @@ int MEKDecoder::DecodePacket(AVPacket pkt, int *gotFrame, int cached)
 		if (ret != 0) 
 			return ret;
 		ret = avcodec_receive_frame(mData->videoParam->pVideoContex, mData->videoParam->pYUVFrame);
-		if (ret != 0) return ret;
-		/*ret = avcodec_decode_video2(mData->videoParam->pVideoContex, frame, gotFrame, &pkt);
-		if (ret < 0)
-		{
+		if (ret != 0) 
 			return ret;
-		}*/
-
-		//if (*gotFrame)
 		{
 			if (mData->videoParam->pYUVFrame->width != mData->width || mData->videoParam->pYUVFrame->height != mData->height || mData->videoParam->pYUVFrame->format != mData->pix_fmt)
 			{
@@ -146,11 +261,9 @@ int MEKDecoder::DecodePacket(AVPacket pkt, int *gotFrame, int cached)
 				mData->videoParam->pImgConvertCtx = sws_getContext(mData->width, mData->height, mData->pix_fmt, mData->width,
 					mData->height, AV_PIX_FMT_BGR32, SWS_BICUBIC, NULL, NULL, NULL);
 
-				//int numBytes = avpicture_get_size(AV_PIX_FMT_RGB32, mData->width, mData->height);
 				int numBytes = av_image_get_buffer_size(AV_PIX_FMT_BGR32, mData->width, mData->height, 1);
 				uint8_t* out_buffer_rgb = (uint8_t*)av_malloc(numBytes * sizeof(uint8_t));
 				
-				//avpicture_fill((AVPicture*)(mData->videoParam->pRGBFrame), out_buffer_rgb, AV_PIX_FMT_RGB32, mData->width, mData->height);
 				av_image_fill_arrays(mData->videoParam->pRGBFrame->data, mData->videoParam->pRGBFrame->linesize, out_buffer_rgb, AV_PIX_FMT_BGR32, mData->width, mData->height, 1);
 			}
 
@@ -178,10 +291,6 @@ int MEKDecoder::DecodePacket(AVPacket pkt, int *gotFrame, int cached)
 					gDevice->Unmap(gDynamicTexuture[index]);
 				}
 			}
-			else
-			{
-				Sleep(1);
-			}
 			
 			Sleep(40);
 			char file[256] = { 0 };
@@ -194,24 +303,109 @@ int MEKDecoder::DecodePacket(AVPacket pkt, int *gotFrame, int cached)
 	}
 	else if (pkt.stream_index == mData->audioParam->nAudioIndex)
 	{
-#if 0
-		ret = avcodec_send_packet(mData->videoParam->pVideoContex, &pkt);
-		if (ret != 0) return ret;
+#if 1
+		int resampled_data_size, wanted_nb_samples;
 
-		ret = avcodec_receive_frame(mData->videoParam->pVideoContex, frame);
-		if (ret != 0) return ret;
-		//ret = avcodec_decode_audio4(mData->audioParam->pAudioContex, frame, gotFrame, &pkt);
+		ret = avcodec_decode_audio4(mData->audioParam->pAudioContex, mData->audioParam->pFrame, gotFrame, &pkt);
 		if (ret < 0)
 		{
-			return ret;
+			mData->audioParam->audio_pkt_siz = 0;
 		}
-		decoded = FFMIN(ret, pkt.size);
-		
-		if (*gotFrame)
-		{
-			size_t unpadded_linesize = frame->nb_samples * av_get_bytes_per_sample((AVSampleFormat)frame->format);
-		}
+		mData->audioParam->audio_pkt_data += ret;
+		mData->audioParam->audio_pkt_siz -= ret;
 
+		if (!gotFrame)
+		{
+			return -1;
+		}
+		/*ret = avcodec_send_packet(mData->audioParam->pAudioContex, &pkt);
+		if (ret < 0 && ret != AVERROR_EOF) 
+			return ret;
+
+		ret = avcodec_receive_frame(mData->audioParam->pAudioContex, mData->audioParam->pFrame);
+		if (ret < 0 && ret != AVERROR(EAGAIN))
+			return ret;
+
+		if (ret >= 0)
+		{
+			*gotFrame = 1;
+		}
+		else
+			return -1;*/
+
+		
+		size_t unpadded_linesize = mData->audioParam->pFrame->nb_samples * av_get_bytes_per_sample((AVSampleFormat)mData->audioParam->pFrame->format);
+		/*计算解码出来的帧需要的缓冲大小*/
+		int decoded_data_size = av_samples_get_buffer_size(NULL, mData->audioParam->pFrame->channels, mData->audioParam->pFrame->nb_samples, (AVSampleFormat)mData->audioParam->pFrame->format, 1);
+
+		int64_t dec_channel_layout = (mData->audioParam->pFrame->channel_layout &&
+			mData->audioParam->pFrame->channels == av_get_channel_layout_nb_channels(mData->audioParam->pFrame->channel_layout)) ? mData->audioParam->pFrame->channel_layout : av_get_default_channel_layout(mData->audioParam->pFrame->channels);
+
+		wanted_nb_samples = mData->audioParam->pFrame->nb_samples;
+
+		if (mData->audioParam->pFrame->format != mData->audioParam->audio_src_fmt
+			|| dec_channel_layout != mData->audioParam->audio_src_channel_layout
+			|| mData->audioParam->pFrame->sample_rate != mData->audioParam->audio_src_freq
+			|| (wanted_nb_samples != mData->audioParam->pFrame->nb_samples
+				&& !mData->audioParam->pAudioSwrConvert))
+		{
+			if (mData->audioParam->pAudioSwrConvert)
+			{
+				swr_free(&mData->audioParam->pAudioSwrConvert);
+				mData->audioParam->pAudioSwrConvert = swr_alloc_set_opts(NULL,
+					mData->audioParam->audio_tgt_channel_layout, (AVSampleFormat)mData->audioParam->audio_tgt_fmt,
+					mData->audioParam->audio_tgt_freq, dec_channel_layout,
+					(AVSampleFormat)mData->audioParam->pFrame->format, mData->audioParam->pFrame->sample_rate,
+					0, NULL);
+				if (!mData->audioParam->pAudioSwrConvert || swr_init(mData->audioParam->pAudioSwrConvert) < 0)
+				{
+					
+				}
+				mData->audioParam->audio_src_channel_layout = dec_channel_layout;
+				mData->audioParam->audio_src_channels = mData->audioParam->pAudioContex->channels;
+				mData->audioParam->audio_src_freq = mData->audioParam->pAudioContex->sample_rate;
+				mData->audioParam->audio_src_fmt = mData->audioParam->pAudioContex->sample_fmt;
+			}
+			/*
+				调整采样
+			*/
+			if (mData->audioParam->pAudioSwrConvert)
+			{
+				const uint8_t **in = (const uint8_t **)mData->audioParam->pFrame->extended_data;
+				uint8_t *out[] = { mData->audioParam->audio_buf2 };
+				if (wanted_nb_samples != mData->audioParam->pFrame->nb_samples)
+				{
+					if (swr_set_compensation(mData->audioParam->pAudioSwrConvert,
+						(wanted_nb_samples - mData->audioParam->pFrame->nb_samples) * mData->audioParam->audio_tgt_freq / mData->audioParam->pFrame->sample_rate,
+						wanted_nb_samples * mData->audioParam->audio_tgt_fmt / mData->audioParam->pFrame->sample_rate) < 0)
+					{
+					}
+				}
+
+				int len2 = swr_convert(mData->audioParam->pAudioSwrConvert, out, sizeof(mData->audioParam->audio_buf2) / mData->audioParam->audio_tgt_channels / av_get_bytes_per_sample(mData->audioParam->audio_tgt_fmt),
+					in, mData->audioParam->pFrame->nb_samples);
+				if (len2 < 0)
+				{
+				}
+				if (len2 = sizeof(mData->audioParam->audio_buf2) / mData->audioParam->audio_tgt_channels / av_get_bytes_per_sample(mData->audioParam->audio_tgt_fmt))
+				{
+					swr_init(mData->audioParam->pAudioSwrConvert);
+				}
+				mData->audioParam->audio_buf = mData->audioParam->audio_buf2;
+				resampled_data_size = len2 * mData->audioParam->audio_tgt_channels * av_get_bytes_per_sample(mData->audioParam->audio_tgt_fmt);
+			}
+			else
+			{
+				resampled_data_size = decoded_data_size;
+				mData->audioParam->audio_buf = mData->audioParam->pFrame->data[0];
+			}
+			double pts = mData->audioParam->audio_clock;
+			//int* pts_ptr;
+			//*pts_ptr = pts;
+			int n = 2 * mData->audioParam->pAudioContex->channels;
+			mData->audioParam->audio_clock += (double)resampled_data_size / (double)(n * mData->audioParam->pAudioContex->sample_rate);
+			return resampled_data_size;
+		}
 
 #endif
 
