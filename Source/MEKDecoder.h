@@ -24,7 +24,8 @@ public:
 	}
 	MEKParam* GetData() { return mData; }
 
-	int DecodePacket(AVPacket pkt, int *gotFrame, int cached);
+	int DecodePacket(AVPacket *pkt, int *gotFrame, int cached);
+	int DecodeAudio(MEKParam* param, uint8_t *audio_buf, int buf_size, double *pts_ptr);
 private:
 	MEKParam* mData;
 	void DecoderVideoThread();

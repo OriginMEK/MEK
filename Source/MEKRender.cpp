@@ -235,13 +235,15 @@ bool MEKRender::RenderThread()
 			device->Unmap(dynamicTexure);*/
 
 			
+			char buff[256] = { 0 };
+			sprintf(buff, "------Begin RenderIndex-----\n");
+			OutputDebugStringA(buff);
 
 			int i = gRenderQueue.GetReadIndex();
 			if (i != -1)
 			{
 				device->Render(vertex, index, gDynamicTexuture[i], diffuseVertexShader, diffusePixelShader);
-				char buff[256] = { 0 };
-				sprintf(buff, "------RenderIndex:%d-----\n", i);
+				sprintf(buff, "------End RenderIndex:%d-----\n", i);
 				OutputDebugStringA(buff);
 			}
 			else

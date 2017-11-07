@@ -75,7 +75,7 @@ int MEKSpliter::OpenCodecContext(int *streamIndex, AVCodecContext **dec_ctx, AVF
 		stream_index = ret;
 		st = fmt_ctx->streams[stream_index];
 
-		dec = avcodec_find_decoder(st->codecpar->codec_id);\
+		dec = avcodec_find_decoder(st->codecpar->codec_id);
 		if (!dec)
 		{
 			return AVERROR(EINVAL);
@@ -112,11 +112,9 @@ void MEKSpliter::SpliterThread()
 
 	while (true)
 	{
-		PARSERDISPINFO*  param = new PARSERDISPINFO;
-		//AVPacket* packet = (AVPacket*)malloc(sizeof(AVPacket));
-		//av_init_packet(packet);
+		PARSERDISPINFO*  param = new PARSERDISPINFO;		
 
-		int ret = av_read_frame(mData->pFormatContex, &(param->data));
+		int ret = av_read_frame(mData->pFormatContex, param->packet);
 		if (ret < 0 )
 		{
 			char errbuf[1024] = { 0 };
@@ -124,23 +122,22 @@ void MEKSpliter::SpliterThread()
 			break;
 		}
 
-		if (param->data.stream_index == mData->videoParam->nVideoIndex)
+		if (param->packet->stream_index == mData->videoParam->nVideoIndex)
 		{
-			static int index = 0;
-			param->picture_index = (index++) % 200;
+			static int indexVideo = 0;
+			param->picture_index = (indexVideo++) % 200;
 			mData->videoParam->pVideoQueue->enqueue(param);
 		}
-		else if (param->data.stream_index == mData->audioParam->nAudioIndex)
+		else if (param->packet->stream_index == mData->audioParam->nAudioIndex)
 		{
-			static int index = 0;
-			param->picture_index = (index++) % 200;
+			static int indexAudio = 0;
+			param->picture_index = (indexAudio++) % 200;
 			mData->audioParam->pAudioQueue->enqueue(param);
 		}
 		else
 		{
 			delete param;
 			param = NULL;
-			//av_packet_free(&packet);
 		}
 	}
 }

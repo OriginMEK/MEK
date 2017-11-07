@@ -20,13 +20,25 @@ typedef struct _PARSERDISPINFO
 	int progressive_frame;     /**<                 */
 	int top_field_first;       /**<                 */
 	int repeat_first_field;    /**< Number of additional fields (1=ivtc, 2=frame doubling, 4=frame tripling, -1=unpaired field)  */
-	AVPacket data;        /**<     */
+	AVPacket *packet;        /**<     */
+	_PARSERDISPINFO()
+	{
+		//packet = av_packet_alloc();
+		packet = (AVPacket*)malloc(sizeof(AVPacket));
+		av_init_packet(packet);
+	}
+
+	~_PARSERDISPINFO()
+	{
+		//av_packet_free(&packet);
+		free(packet);
+	}
 } PARSERDISPINFO;
 
 class FrameQueue
 {
 public:
-	static const unsigned int cnMaximumSize = 200;
+	static const unsigned int cnMaximumSize = 1000;
 private:
 	void signalStatusChange();
 

@@ -41,6 +41,7 @@ typedef struct MEKAudio
 	AVCodecContext	*pAudioContex = NULL;
 	AVCodec			*pAudioCodec = NULL;
 	AVStream		*pAudioStream = NULL;
+	AVPacket		audio_pkt;
 	AVFrame			*pFrame = NULL;
 	int				nAudioIndex = -1;
 	FrameQueue		*pAudioQueue;
@@ -57,7 +58,7 @@ typedef struct MEKAudio
 	SDL_AudioDeviceID	audioDeviceID;
 	unsigned int	audio_buf_size;
 	unsigned int	audio_buf_index;
-	int				audio_pkt_siz;
+	int				audio_pkt_size;
 	uint8_t			*audio_pkt_data;
 	uint8_t			*audio_buf;
 	double			audio_clock;
@@ -70,7 +71,7 @@ typedef struct MEKAudio
 		pFrame = av_frame_alloc();
 		audio_buf_size = 0;
 		audio_buf_index = 0;
-		audio_pkt_siz = 0;
+		audio_pkt_size = 0;
 		pAudioSwrConvert = NULL;
 	}
 }*pMEKAudio;
@@ -143,7 +144,7 @@ public:
 		bool bHaveNewFrame = false;
 		::EnterCriticalSection(&cs);
 
-		if (mTotalInQueue_ > 0)
+		if (mTotalInQueue_ > 1)
 		{
 			int iEntry = nReadPosotion_;
 			ret = iEntry;
