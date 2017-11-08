@@ -139,6 +139,7 @@ void MEKDecoder::DecoderVideoThread()
 			int got_frame;
 			pDisplayInfo = &oDisplayInfo;
 			DecodePacket(oDisplayInfo.packet, &got_frame, 0);
+			av_packet_unref(oDisplayInfo.packet);
 			if (pDisplayInfo)
 			{
 				//delete pDisplayInfo;
@@ -249,12 +250,20 @@ int MEKDecoder::DecodePacket(AVPacket *pkt, int *gotFrame, int cached)
 			mData->videoParam->pRGBFrame = av_frame_alloc();
 		}
 
-		ret = avcodec_send_packet(mData->videoParam->pVideoContex, pkt);
+		mData->videoParam->video_clock = av_q2d(mData->videoParam->pVideoStream->time_base) * pkt->pts;
+
+		int ret = avcodec_decode_video2(mData->videoParam->pVideoContex, mData->videoParam->pYUVFrame, gotFrame, pkt);
+		if (ret < 0)
+		{
+			return ret;
+		}
+		/*ret = avcodec_send_packet(mData->videoParam->pVideoContex, pkt);
 		if (ret != 0) 
 			return ret;
 		ret = avcodec_receive_frame(mData->videoParam->pVideoContex, mData->videoParam->pYUVFrame);
 		if (ret != 0) 
-			return ret;
+			return ret;*/
+		if (gotFrame)
 		{
 			if (mData->videoParam->pYUVFrame->width != mData->width || mData->videoParam->pYUVFrame->height != mData->height || mData->videoParam->pYUVFrame->format != mData->pix_fmt)
 			{
@@ -274,6 +283,7 @@ int MEKDecoder::DecodePacket(AVPacket *pkt, int *gotFrame, int cached)
 
 			sws_scale(mData->videoParam->pImgConvertCtx, (uint8_t const * const *)mData->videoParam->pYUVFrame->data, mData->videoParam->pYUVFrame->linesize, 0, mData->height, mData->videoParam->pRGBFrame->data, mData->videoParam->pRGBFrame->linesize);
 			
+			
 			int index = gRenderQueue.GetWriteIndex();
 			if (index != -1)
 			{
@@ -284,7 +294,7 @@ int MEKDecoder::DecodePacket(AVPacket *pkt, int *gotFrame, int cached)
 
 					char buff[256] = { 0 };
 					sprintf(buff, "******MapIndex:%d******\n",index);
-					OutputDebugStringA(buff);
+					//OutputDebugStringA(buff);
 
 					void* pData = gDevice->Map(gDynamicTexuture[index], pitch);
 					for (int h = 0; h < mData->height; h++)
@@ -296,11 +306,25 @@ int MEKDecoder::DecodePacket(AVPacket *pkt, int *gotFrame, int cached)
 					gDevice->Unmap(gDynamicTexuture[index]);
 
 					sprintf(buff, "******End MapIndex:%d******\n", index);
-					OutputDebugStringA(buff);
+					//OutputDebugStringA(buff);
 				}
 			}
 			
-			Sleep(40);
+			//begin syn
+			double audio_pts = GetAudioClock(mData);
+			SynchronizeVideo(mData->videoParam->pYUVFrame->repeat_pict, audio_pts);
+			if (mData->videoParam->video_clock - audio_pts > 0.001)
+			{
+				double n = (mData->videoParam->video_clock - audio_pts) * 1000;
+				//if (n - 100.0f > 0.000001f)
+				//	n = 0.0f;
+				//sleep(n);
+				char buff[256] = { 0 };
+				sprintf(buff, "******times:%lf******\n", n);
+				OutputDebugStringA(buff);
+			}
+			//end syn
+			//Sleep(40);
 			char file[256] = { 0 };
 			SYSTEMTIME st = { 0 };
 			GetLocalTime(&st);
@@ -428,7 +452,6 @@ int MEKDecoder::DecodeAudio(MEKParam* param, uint8_t *audio_buf, int buf_size, d
 	}
 
 	PARSERDISPINFO DisplayInfo;
-	PARSERDISPINFO *pDisplayInfo = NULL;
 	for (;;)
 	{
 		while (param->audioParam->audio_pkt_size > 0)
@@ -516,27 +539,64 @@ int MEKDecoder::DecodeAudio(MEKParam* param, uint8_t *audio_buf, int buf_size, d
 					mData->audioParam->audio_buf = mData->audioParam->pFrame->data[0];
 				}
 				double pts = mData->audioParam->audio_clock;
-				//int* pts_ptr;
-				//*pts_ptr = pts;
+				*pts_ptr = pts;
 				int n = 2 * mData->audioParam->pAudioContex->channels;
 				mData->audioParam->audio_clock += (double)resampled_data_size / (double)(n * mData->audioParam->pAudioContex->sample_rate);
 				return resampled_data_size;
 		}
 
+		if (DisplayInfo.packet)
+		{
+			av_packet_unref(DisplayInfo.packet);
+		}
 		if (param->audioParam->audio_pkt_size == 0)
 		{
-			if (pDisplayInfo)
-			{
-				delete pDisplayInfo;
-				pDisplayInfo = NULL;
-			}
 			if (param->audioParam->pAudioQueue->dequeue(&DisplayInfo))
 			{
 				pkt = DisplayInfo.packet;
 				param->audioParam->audio_pkt_size = pkt->size;
 				param->audioParam->audio_pkt_data = pkt->data;
-				pDisplayInfo = &DisplayInfo;
+
+				if (pkt->pts != AV_NOPTS_VALUE)
+				{
+					param->audioParam->audio_clock = av_q2d(param->audioParam->pAudioStream->time_base) * pkt->pts;
+				}
 			}
 		}
 	}
+}
+
+double MEKDecoder::GetAudioClock(MEKParam* param)
+{
+	double pts;
+	int hw_buf_size, byte_per_sec, n;
+
+	pts = param->audioParam->audio_clock;
+	hw_buf_size = param->audioParam->audio_buf_size - param->audioParam->audio_buf_index;
+	byte_per_sec = 0;
+	n = param->audioParam->pAudioContex->channels * 2;
+
+	byte_per_sec = param->audioParam->pAudioContex->sample_rate * n;
+	if (byte_per_sec)
+	{
+		pts -= (double)hw_buf_size / byte_per_sec;
+	}
+	return pts;
+}
+
+double MEKDecoder::SynchronizeVideo(int repeat_pict, double pts)
+{
+	double frame_deley;
+	if (pts != 0)
+	{
+		mData->videoParam->video_clock = pts;
+	}
+	else
+	{
+		pts = mData->videoParam->video_clock;
+	}
+	frame_deley = av_q2d(mData->videoParam->pVideoStream->time_base);
+	frame_deley += repeat_pict * (frame_deley * 0.5);
+	mData->videoParam->video_clock += frame_deley;
+	return pts;
 }

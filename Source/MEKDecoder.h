@@ -26,6 +26,8 @@ public:
 
 	int DecodePacket(AVPacket *pkt, int *gotFrame, int cached);
 	int DecodeAudio(MEKParam* param, uint8_t *audio_buf, int buf_size, double *pts_ptr);
+	double GetAudioClock(MEKParam* param);
+	double SynchronizeVideo(int repeat_pict, double pts);
 private:
 	MEKParam* mData;
 	void DecoderVideoThread();

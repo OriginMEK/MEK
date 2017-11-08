@@ -28,11 +28,13 @@ typedef struct MEKVideo
 	AVFrame			*pRGBFrame = NULL;
 	int				nVideoIndex = -1;
 	FrameQueue		*pVideoQueue;
+	double			video_clock;
 	MEKVideo()
 	{
 		pVideoQueue = new FrameQueue();
 		pYUVFrame = av_frame_alloc();
 		pRGBFrame = av_frame_alloc();
+		video_clock = 0.0f;
 	}
 }*pMEKVideo;
 
@@ -73,6 +75,7 @@ typedef struct MEKAudio
 		audio_buf_index = 0;
 		audio_pkt_size = 0;
 		pAudioSwrConvert = NULL;
+		audio_clock = 0.0f;
 	}
 }*pMEKAudio;
 
