@@ -16,6 +16,7 @@ extern "C"
 }
 #include "MEKQueue.h"
 #include <process.h>
+#include <queue>
 #define SAFEDELETE(x) if(x){ delete (x); x = NULL;}
 #define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000 
 typedef struct MEKVideo
@@ -94,19 +95,15 @@ typedef struct MEKParam
 	}
 }*pMEKParam;
 
+template <typename T>
 class RenderQueue
 {
 private:
-	int mData[10] = {0,1,2,3,4,5,6,7,8,9 };
-	volatile int nReadPosotion_;
-	volatile int mTotalInQueue_;
-	volatile int bEndofDecode_;
+	std::queue<T> _data;
+	int				_size;
 	CRITICAL_SECTION cs;
 public:
-	RenderQueue():
-		nReadPosotion_(0),
-		mTotalInQueue_(0), 
-		bEndofDecode_(0)
+	RenderQueue():_size(10)
 	{
 		::InitializeCriticalSection(&cs);
 	}
@@ -116,53 +113,44 @@ public:
 		::DeleteCriticalSection(&cs);
 	}
 
-	int GetWriteIndex()
+	T GetData(bool bWaite = true)
 	{
-		int ret = -1;
+		T ret = NULL;
 		do 
 		{
-			bool bPlacedFrame = false;
+			bool bGetTex = false;
 			::EnterCriticalSection(&cs);
-
-			if (mTotalInQueue_ < 10)
+			if (_data.size() > 0)
 			{
-				int iWritePosition = (nReadPosotion_ + mTotalInQueue_) % 10;
-				ret = iWritePosition;
-				mTotalInQueue_++;
-				bPlacedFrame = true;
+				ret = _data.front();
+				_data.pop();
+				bGetTex = true;
 			}
 			::LeaveCriticalSection(&cs);
 
-			if (bPlacedFrame)
+			if (!bWaite)
 				break;
 
-			sleep(1);   // Wait a bit
-		} while (!bEndofDecode_);
+			if (bGetTex)
+				break;
+
+			sleep(1);
+		} while (true);
+
 		return ret;
 	}
 
-	int GetReadIndex()
+	void SetData(T data)
 	{
-		int ret = -1;
-		bool bHaveNewFrame = false;
 		::EnterCriticalSection(&cs);
-
-		if (mTotalInQueue_ > 1)
-		{
-			int iEntry = nReadPosotion_;
-			ret = iEntry;
-			nReadPosotion_ = (iEntry + 1) % 10;
-			mTotalInQueue_--;
-			bHaveNewFrame = true;
-		}
-		else
-		{
-			ret = nReadPosotion_ - 1;
-		}
+		_data.push(data);
 		::LeaveCriticalSection(&cs);
-		return ret;
 	}
 
+	int GetSize()
+	{
+		return _data.size();
+	}
 };
 /*
 	Ê±¼ä : 2017-10-27 17:30:02

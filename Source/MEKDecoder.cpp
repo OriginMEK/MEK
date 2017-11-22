@@ -5,7 +5,9 @@
 using namespace M1000Group;
 extern Texture2D	*gDynamicTexuture[10];
 extern RenderDevice	*gDevice; 
-extern RenderQueue	gRenderQueue;
+extern RenderQueue<void*>		gCanRenderTex;
+extern RenderQueue<void*>		gUsingTex;
+extern RenderQueue<void*>		gNeedMapTex;
 static int64_t audio_callback_time = 0;
 #define  SDL_AUDIO_BUFFER_SIZE 1024
 
@@ -283,44 +285,36 @@ int MEKDecoder::DecodePacket(AVPacket *pkt, int *gotFrame, int cached)
 
 			sws_scale(mData->videoParam->pImgConvertCtx, (uint8_t const * const *)mData->videoParam->pYUVFrame->data, mData->videoParam->pYUVFrame->linesize, 0, mData->height, mData->videoParam->pRGBFrame->data, mData->videoParam->pRGBFrame->linesize);
 			
-			
-			int index = gRenderQueue.GetWriteIndex();
-			if (index != -1)
+			Texture2D		*tex2d = (Texture2D*)gNeedMapTex.GetData();
+			if (gDevice && tex2d)
 			{
-				if (gDevice && gDynamicTexuture[index])
+				int pitch;
+				int stride = mData->videoParam->pRGBFrame->linesize[0];
+
+				void* pData = gDevice->Map(tex2d, pitch);
+				for (int h = 0; h < mData->height; h++)
 				{
-					int pitch;
-					int stride = mData->videoParam->pRGBFrame->linesize[0];
-
-					char buff[256] = { 0 };
-					sprintf(buff, "******MapIndex:%d******\n",index);
-					//OutputDebugStringA(buff);
-
-					void* pData = gDevice->Map(gDynamicTexuture[index], pitch);
-					for (int h = 0; h < mData->height; h++)
-					{
-						unsigned char* srcLine = (unsigned char*)(mData->videoParam->pRGBFrame->data[0]) + h * mData->videoParam->pRGBFrame->linesize[0];
-						unsigned char* dstLine = (unsigned char*)pData + h * pitch;
-						memcpy(dstLine, srcLine, pitch);
-					}
-					gDevice->Unmap(gDynamicTexuture[index]);
-
-					sprintf(buff, "******End MapIndex:%d******\n", index);
-					//OutputDebugStringA(buff);
+					unsigned char* srcLine = (unsigned char*)(mData->videoParam->pRGBFrame->data[0]) + h * mData->videoParam->pRGBFrame->linesize[0];
+					unsigned char* dstLine = (unsigned char*)pData + h * pitch;
+					memcpy(dstLine, srcLine, pitch);
 				}
+				gDevice->Unmap(tex2d);
+
+				gCanRenderTex.SetData(tex2d);
 			}
 			
 			//begin syn
 			double audio_pts = GetAudioClock(mData);
-			SynchronizeVideo(mData->videoParam->pYUVFrame->repeat_pict, audio_pts);
+			double video_pts = GetVideoClock(pkt->pts);
+			SynchronizeVideo(mData->videoParam->pYUVFrame->repeat_pict, video_pts);
 			if (mData->videoParam->video_clock - audio_pts > 0.001)
 			{
-				double n = (mData->videoParam->video_clock - audio_pts) * 1000;
+				double n = (mData->videoParam->video_clock - audio_pts) ;
 				//if (n - 100.0f > 0.000001f)
 				//	n = 0.0f;
-				//sleep(n);
 				char buff[256] = { 0 };
 				sprintf(buff, "******times:%lf******\n", n);
+				sleep(n);
 				OutputDebugStringA(buff);
 			}
 			//end syn
@@ -582,6 +576,12 @@ double MEKDecoder::GetAudioClock(MEKParam* param)
 		pts -= (double)hw_buf_size / byte_per_sec;
 	}
 	return pts;
+}
+
+double MEKDecoder::GetVideoClock(long long value)
+{
+	double video_pts = av_q2d(mData->videoParam->pVideoStream->time_base) * value;
+	return video_pts;
 }
 
 double MEKDecoder::SynchronizeVideo(int repeat_pict, double pts)
