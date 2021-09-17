@@ -19,6 +19,15 @@ extern "C"
 #include <queue>
 #define SAFEDELETE(x) if(x){ delete (x); x = NULL;}
 #define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000 
+typedef struct Clock
+{
+    double pts;
+    double pts_drift;
+    double last_updated;
+	int serial;           /* clock is based on a packet with this serial */
+	int* queue_serial;    /* pointer to the current packet queue serial, used for obsolete clock detection */
+};
+
 typedef struct MEKVideo
 {
 	AVCodecContext	*pVideoContex = NULL;
@@ -30,12 +39,15 @@ typedef struct MEKVideo
 	int				nVideoIndex = -1;
 	FrameQueue		*pVideoQueue;
 	double			video_clock;
+    Clock           vClock;
 	MEKVideo()
 	{
 		pVideoQueue = new FrameQueue();
 		pYUVFrame = av_frame_alloc();
 		pRGBFrame = av_frame_alloc();
 		video_clock = 0.0f;
+		vClock.pts = NAN;
+		vClock.serial = -1;
 	}
 }*pMEKVideo;
 
@@ -57,17 +69,26 @@ typedef struct MEKAudio
 	int				audio_src_channel_layout;
 	int				audio_src_channels;
 	int				audio_tgt_channels;
+    int             frame_size;
+    int             byte_per_sec;
 
 	SDL_AudioDeviceID	audioDeviceID;
+    int             audio_hw_buf_size;
+    Clock           aClock;
+    unsigned int    audio_write_buf_size; /* in bytes */
 	unsigned int	audio_buf_size;
 	unsigned int	audio_buf_index;
 	int				audio_pkt_size;
 	uint8_t			*audio_pkt_data;
 	uint8_t			*audio_buf;
+	uint8_t			* audio_buf1;
+	unsigned int audio_buf1_size;
 	double			audio_clock;
 	DECLARE_ALIGNED(16, uint8_t, audio_buf2)[AVCODEC_MAX_AUDIO_FRAME_SIZE * 4];
 	struct SwrContext	*pAudioSwrConvert;
 
+	int64_t next_pts;
+	AVRational next_pts_tb;
 	MEKAudio()
 	{
 		pAudioQueue = new FrameQueue();
@@ -77,6 +98,11 @@ typedef struct MEKAudio
 		audio_pkt_size = 0;
 		pAudioSwrConvert = NULL;
 		audio_clock = 0.0f;
+		audio_buf1 = NULL;
+		audio_buf1_size = 0;
+		next_pts = AV_NOPTS_VALUE;
+		aClock.pts = NAN;
+		aClock.serial = -1;
 	}
 }*pMEKAudio;
 
@@ -88,6 +114,7 @@ typedef struct MEKParam
 	AVFormatContext *pFormatContex = NULL;
 	MEKVideo* videoParam = NULL;
 	MEKAudio* audioParam = NULL;
+	double frame_timer;
 	MEKParam()
 	{
 		videoParam = new MEKVideo();

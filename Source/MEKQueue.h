@@ -49,7 +49,9 @@ private:
 	PARSERDISPINFO				aDisplayQueue_[cnMaximumSize];
 	volatile int				aIsFrameInUse_[cnMaximumSize];
 	volatile int				bEndOfDecode_;
+	
 public:
+	int							serial;
 	FrameQueue();
 
 	virtual ~FrameQueue();
