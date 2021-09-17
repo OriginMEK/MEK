@@ -21,6 +21,12 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 Texture2D		*gDynamicTexuture[10] = { 0 };
 
+typedef struct FrameTexture2D
+{
+	Texture2D* texture;
+	double		pts;
+}*pFrameTexture2D;
+
 RenderDevice	*gDevice = NULL;
 RenderQueue<void*>		gCanRenderTex;
 RenderQueue<void*>		gUsingTex;

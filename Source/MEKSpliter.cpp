@@ -10,9 +10,22 @@ MEKSpliter::~MEKSpliter()
 
 }
 
+static void init_clock(Clock* c, int* queue_serial)
+{
+	double time = av_gettime_relative() / 1000000.0;
+	c->pts = NAN;
+	c->queue_serial = queue_serial;
+	c->last_updated = time;
+	c->pts_drift = c->pts - time;
+	c->serial = -1;
+}
 bool MEKSpliter::AnalyzeFile(char* fileName, MEKParam* data)
 {
 	mData = data;
+
+	init_clock(&mData->videoParam->vClock, &mData->videoParam->pVideoQueue->serial);
+	init_clock(&mData->audioParam->aClock, &mData->audioParam->pAudioQueue->serial);
+
 	AVFormatContext* formatContex = NULL;
 	av_register_all();
 	avformat_network_init();
@@ -75,11 +88,7 @@ int MEKSpliter::OpenCodecContext(int *streamIndex, AVCodecContext **dec_ctx, AVF
 		stream_index = ret;
 		st = fmt_ctx->streams[stream_index];
 
-		dec = avcodec_find_decoder(st->codecpar->codec_id);
-		if (!dec)
-		{
-			return AVERROR(EINVAL);
-		}
+		
 
 		*dec_ctx = avcodec_alloc_context3(dec);
 		if (!*dec_ctx)
@@ -91,7 +100,9 @@ int MEKSpliter::OpenCodecContext(int *streamIndex, AVCodecContext **dec_ctx, AVF
 		{
 			return ret;
 		}
+		(*dec_ctx)->pkt_timebase = st->time_base;
 
+		dec = avcodec_find_decoder((*dec_ctx)->codec_id);
 		//av_dict_set(&opts, "refcounted_frames", refcount ? "1" £º "0",0);
 		if ((ret = avcodec_open2(*dec_ctx, dec, NULL)) < 0)
 		{

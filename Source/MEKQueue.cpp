@@ -5,6 +5,7 @@ FrameQueue::FrameQueue() : hEvent_(0)
 	,nReadPosition_(0)
 	,nFramesInQueue_(0)
 	,bEndOfDecode_(0)
+	,serial(1)
 {
 	hEvent_ = CreateEvent(NULL, false, false, NULL);
 	InitializeCriticalSection(&oCriticalSection_);

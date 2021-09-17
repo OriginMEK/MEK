@@ -13,7 +13,8 @@ namespace M1000Group
 	public:
 		Texture2D();
 		virtual ~Texture2D();
-
+		
+		double pts;
 		virtual TextureType GetType()
 		{
 			return Type;
